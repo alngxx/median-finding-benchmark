@@ -1,4 +1,4 @@
-# PA2 Selection
+# Median Finding Benchmark: Quickselect vs Median of Medians
 
 Group comparison of two selection algorithms for UTS 41052 Advanced Algorithms, Programming Assignment 2.
 
