@@ -11,6 +11,11 @@ def select(a: list, k: int, rng: random.Random | None = None):
 
     Compares elements only with < and ==. Replaces a with a sublist as it
     runs, so the caller's list is not changed.
+    Each element costs 1 comparison if it is less than the pivot and 2 otherwise (< then ==).
+
+    Precondition: values must be totally ordered, so NaN is not allowed. A list
+    of only NaN values makes select loop forever, because NaN < NaN and
+    NaN == NaN are both False.
     """
     if len(a) == 0 or k < 0 or k >= len(a):
         raise ValueError("empty list or k out of range")
@@ -35,9 +40,10 @@ def select(a: list, k: int, rng: random.Random | None = None):
             else:
                 greater.append(x)
 
-        # A random pivot lands in the middle half of the sorted order with probability 1/2,
-        # and then the kept part has at most 3/4 of the elements. So the expected work
-        # is n + 3n/4 + (3/4)^2 n + ... = O(n).
+        # A pivot lands in the middle half of the elements with probability 1/2, and then the
+        # next sublist has at most 3/4 of them. Counting a bad pivot as a round with no shrink,
+        # T(n) <= n + T(n)/2 + T(3n/4)/2, so T(n) <= 2n + T(3n/4) and T(n) <= 8n element visits.
+        # This bound is loose. The real expected number of comparisons is lower (see E1).
         if k < len(less):
             a = less
         elif k < len(less) + len(equal):
@@ -54,6 +60,8 @@ def select_two_way(a: list, k: int, rng: random.Random | None = None):
     pivot lands at the left end of a run of equal values. On a list of all
     equal elements every round removes one element, which makes it quadratic.
     Modifies a.
+
+    Precondition: values must be totally ordered, so NaN is not allowed.
     """
     if len(a) == 0 or k < 0 or k >= len(a):
         raise ValueError("empty list or k out of range")
