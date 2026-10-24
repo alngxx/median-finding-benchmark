@@ -1,6 +1,6 @@
 # PA2 Selection
 
-Group comparison of two selection algorithms for UTS 41052 Advanced Algorithms (Spring 2026), Programming Assignment 2.
+Group comparison of two selection algorithms for UTS 41052 Advanced Algorithms, Programming Assignment 2.
 
 Selection returns the k-th smallest value of an unsorted list. We compare randomized quickselect with deterministic median of medians, both in pure Python, on running time and comparison counts.
 
