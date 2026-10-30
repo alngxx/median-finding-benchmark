@@ -4,7 +4,7 @@
 
 ## Authorship
 
-Drafted with Claude Code from the structure of the algorithms. An Loc states that he saw no experiment results. The drafting session reported opening these files: CLAUDE.md, README.md, .gitignore, pytest.ini, requirements.txt, .github/workflows/ci.yml, every .py file in selection/, bench/ and tests/ (tests/ partly: headers and test names for some files), notes/ai-error-log.md, notes/anloc.md, notes/trung.md and report/predictions.md. It listed results/ and figures/ (only .gitkeep files) and opened nothing outside the repo except its scratch folder. It also ran pytest, which runs the smoke tests, and ran each of e1 to e6 with --quick into a scratch folder, then read only row counts and algorithm names from those files, not timings. This is self-reported and not verified. Thanh Trung's separate draft was written after he saw numbers from a pilot run (details in the section below).
+Drafted with Claude Code from the structure of the algorithms. An Loc states that he saw no experiment results. The drafting session reported opening these files: CLAUDE.md, README.md, .gitignore, pytest.ini, requirements.txt, .github/workflows/ci.yml, every .py file in selection/, bench/ and tests/ (tests/ partly: headers and test names for some files), notes/ai-error-log.md, notes/anloc.md, notes/trung.md and report/predictions.md. It listed results/ and figures/ (only .gitkeep files) and opened nothing outside the repo except its scratch folder. It also ran pytest, which runs the smoke tests, and ran each of e1 to e6 with --quick into a scratch folder, then read only row counts and algorithm names from those files, not timings. This is self-reported and not verified. An Loc also saw two numbers before these predictions were locked: the comparison counts for quickselect and its two-way variant on all_equal with n = 2000 (4,000 and 1,500,499, from a unit test), and Thanh Trung's report that the two-way variant took about 4.4 s per call at n = 10^4. Neither is the subject of P1 to P9. Thanh Trung's separate draft was written after he saw numbers from a pilot run (details in the section below).
 
 ## Differences with Trung's draft
 
@@ -50,9 +50,9 @@ Most uncertain prediction.
 
 ## P7: What is the worst input family for each algorithm?
 
-Prediction: Quickselect: all_equal is cheapest, and every other family is within 10% of random. Median of medians: reverse_sorted is the most expensive, because insertion sort on reversed groups does the most swaps.
+Prediction: Quickselect: all_equal and few_distinct are the cheapest families. random, sorted and reverse_sorted are within 10% of each other in time and comparisons. Median of medians: reverse_sorted is the most expensive, because insertion sort on reversed groups does the most swaps.
 
-Reason (one line): A random pivot ignores input order, and the 3-way partition finishes all_equal in one round.
+Reason (one line): The 3-way partition removes every element equal to the pivot, so duplicates shrink the list quickly, and a random pivot ignores input order.
 
 ## P8a: Does the position of k change quickselect's cost (E5)?
 
