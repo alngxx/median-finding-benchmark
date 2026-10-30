@@ -1,4 +1,4 @@
-# PA2 Selection
+# Median Finding Benchmark
 Group algorithm comparison for UTS 41052 Advanced Algorithms (Spring 2026),
 Programming Assignment 2. Problem: selection (return the k-th smallest value
 of an unsorted list). We compare randomized quickselect with deterministic
@@ -21,11 +21,14 @@ selection/baseline.py           ← sorted(a)[k], reference only, not a graded a
 
 bench/generators.py             ← seeded input families, ints and strings (An Loc Nguyen)
 bench/counting.py               ← Counted wrapper, count_comparisons (An Loc Nguyen)
-bench/adversary.py              ← McIlroy-style adversary, design not decided yet
-bench/run_bench.py              ← experiments E1 to E7, writes results/*.csv (Thanh Trung Le)
+bench/adversary.py              ← unimplemented placeholder, E7 (adversary) was dropped
+bench/run_bench.py              ← experiments E1 to E6, writes results/*.csv (Thanh Trung Le)
 bench/plot.py                   ← figures/*.png from results/*.csv (Thanh Trung Le)
 
-tests/                          ← one test file per module, plus test_contract.py
+tests/                          ← test_contract.py (all three select functions),
+                                  test_quickselect.py, test_median_of_medians.py,
+                                  test_generators_counting.py (generators and Counted),
+                                  test_bench_smoke.py (run_bench and plot)
 analysis/                       ← per-person scripts that print numbers from results/
 report/predictions.md           ← locked with a git tag before any experiment
 results/  figures/              ← generated files, committed
@@ -73,7 +76,7 @@ notes/ai-error-log.md           ← every AI mistake, same day
 - Install: `pip install -r requirements.txt`
 - Run tests: `pytest`
 - Quick benchmark check: `python -m bench.run_bench e1 --quick`
-- Full experiment: `python -m bench.run_bench e1` (also e2 to e7)
+- Full experiment: `python -m bench.run_bench e1` (also e2 to e6, or `all`). E7 was dropped
 - Make plots: `python -m bench.plot`
 
 
