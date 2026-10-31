@@ -4,11 +4,28 @@
 
 ## Authorship
 
-Drafted with Claude Code from the structure of the algorithms. An Loc states that he saw no experiment results. The drafting session reported opening these files: CLAUDE.md, README.md, .gitignore, pytest.ini, requirements.txt, .github/workflows/ci.yml, every .py file in selection/, bench/ and tests/ (tests/ partly: headers and test names for some files), notes/ai-error-log.md, notes/anloc.md, notes/trung.md and report/predictions.md. It listed results/ and figures/ (only .gitkeep files) and opened nothing outside the repo except its scratch folder. It also ran pytest, which runs the smoke tests, and ran each of e1 to e6 with --quick into a scratch folder, then read only row counts and algorithm names from those files, not timings. This is self-reported and not verified. An Loc also saw two numbers before these predictions were locked: the comparison counts for quickselect and its two-way variant on all_equal with n = 2000 (4,000 and 1,500,499, from a unit test), and Thanh Trung's report that the two-way variant took about 4.4 s per call at n = 10^4. Neither is the subject of P1 to P9. Thanh Trung's separate draft was written after he saw numbers from a pilot run (details in the section below).
+Drafted with Claude Code from the structure of the algorithms. An Loc states that he saw no experiment results. The drafting session reported opening these files: CLAUDE.md, README.md, .gitignore, pytest.ini, requirements.txt, .github/workflows/ci.yml, every .py file in selection/, bench/ and tests/ (tests/ partly: headers and test names for some files), notes/ai-error-log.md, notes/anloc.md, notes/trung.md and report/predictions.md. It listed results/ and figures/ (only .gitkeep files) and opened nothing outside the repo except its scratch folder. It also ran pytest, which runs the smoke tests, and ran each of e1 to e6 with --quick into a scratch folder, then read only row counts and algorithm names from those files, not timings. This is self-reported and not verified. An Loc also saw two numbers before these predictions were locked: the comparison counts for quickselect and its two-way variant on all_equal with n = 2000 (4,000 and 1,500,499, from a unit test), and Thanh Trung's report that the two-way variant took about 4.4 s per call at n = 10^4. Neither is the subject of P1 to P9. Thanh Trung's separate draft was written after he, and Claude in his session, saw experiment numbers. As he reported it (not verified by An Loc): (a) a harness check with throwaway implementations covering E1 to E5 at n up to 10^5, after which he was told one time ratio (median of medians vs quickselect on random input); (b) after median of medians was written, comparison counts per element on the six integer families at n = 20,001 and one running time at n = 10^6, of which he was told the running time; (c) a comment in tests/test_median_of_medians.py that gives a measured range of comparisons per element for g = 5, committed in the repo; (d) a 2-instance pilot of E1 to E6 with the final code, seen by Claude in full, after which he was told four qualitative findings (time ratio of median of medians to quickselect, how sorted() compares with quickselect in time, the trend of g = 3 against g = 5, 7 and 9, and how prefix length affects comparisons and time); (e) an accidental full run that printed only per-stage progress times, with its CSV files moved out of the repo unopened. His views on P1, P4, P6 and P9 are therefore not independent of the data. The session that drafted An Loc's predictions opened tests/test_median_of_medians.py (at least its header and test names), so it may have seen the comment in (c). None of P1 to P9c is stated in comparisons per element for median of medians.
 
 ## Differences with Trung's draft
 
-Changes An Loc made:
+| Prediction | An Loc | Trung | Result of comparison |
+|---|---|---|---|
+| P1 | 2x to 5x, quickselect faster | 2x to 4x | Compatible (inside An Loc's range) |
+| P2 | slope 0.9 to 1.2 for both | Compatible, no extra detail | Compatible |
+| P3 | max is 1.5 to 3 times the mean | Adds a mean of 4n to 6n | Compatible |
+| P4 | slightly, hard to see | visibly, about 1.5x per element from 10^3 to 10^6 | DISAGREEMENT |
+| P5 | within 10% in time | Compatible, no extra detail | Compatible |
+| P6 | sorted() wins at small n, quickselect may win at 10^6 | sorted() wins at every size, the gap narrows | DISAGREEMENT |
+| P7 | all_equal and few_distinct cheapest for quickselect, reverse_sorted worst for median of medians | Adds detail | Compatible |
+| P8a | quickselect cheaper at the ends | Compatible, no extra detail | Compatible |
+| P8b | median of medians within 10% across k | Compatible, no extra detail | Compatible |
+| P9a | identical comparison counts | Same | Same |
+| P9b | time ratio changes by less than 20% | No threshold | Different |
+| P9c | within 30% at prefix length 100 | grows by less than 50% | Different |
+
+Decision: An Loc's predictions are locked unchanged, because they are the only ones written without access to experiment numbers. Trung's versions of P4, P6 and P9c are recorded here as noted and not adopted. Details from Trung's draft that cite a formula (Knuth's expected cost) are not verified in our counting and are not adopted.
+
+Changes An Loc made: the first draft was written by Claude Code. An Loc reviewed it and changed these: added numbers to P2 and P5; rewrote P6 and P7 (P7 corrected for duplicates); split P8 and P9 into separate claims; wrote the Authorship note. He did not write the first draft himself.
 
 ## P1: Which algorithm is faster on random inputs, and by what factor?
 
