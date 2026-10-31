@@ -8,7 +8,15 @@ Drafted with Claude Code from the structure of the algorithms. An Loc states tha
 
 ## Differences with Trung's draft
 
-Changes An Loc made:
+Thanh Trung's draft was written on 29 Oct after he saw rough numbers from a pilot run, so it is recorded here but not used. Where it is compatible with ours (P1, P2, P3, P5, P7, P8a, P8b, P9a) it only adds detail. It differs on three predictions:
+
+- P4: Thanh Trung predicted that comparisons / n for g = 3 rises visibly, about 1.5 times from 10^3 to 10^6. We keep "slightly, hard to see".
+- P6: Thanh Trung predicted that sorted() beats both algorithms at every tested size. We keep "quickselect within 2x of sorted() at 10^6, and might beat it".
+- P9c: Thanh Trung predicted that time per element grows by less than 50% from prefix 0 to 100. We keep "within 30%".
+
+The topics Thanh Trung saw numbers for are listed in his draft. The exact numbers are disclosed in the methodology section of the report, after the run.
+
+Changes An Loc made: none. We locked An Loc's draft unchanged.
 
 ## P1: Which algorithm is faster on random inputs, and by what factor?
 
