@@ -11,16 +11,16 @@ Drafted with Claude Code from the structure of the algorithms. An Loc states tha
 | Prediction | An Loc | Trung | Result of comparison |
 |---|---|---|---|
 | P1 | 2x to 5x, quickselect faster | 2x to 4x | Compatible (inside An Loc's range) |
-| P2 | slope 0.9 to 1.2 for both | Compatible, no extra detail | Compatible |
-| P3 | max is 1.5 to 3 times the mean | Adds a mean of 4n to 6n | Compatible |
+| P2 | slope 0.9 to 1.2 for both | slope close to 1, comparisons / n stays flat, quickselect noisier between instances | Compatible |
+| P3 | max is 1.5 to 3 times the mean | mean about 4n to 6n, p99 about 2x mean, max under 3x mean | Compatible |
 | P4 | slightly, hard to see | visibly, about 1.5x per element from 10^3 to 10^6 | DISAGREEMENT |
-| P5 | within 10% in time | Compatible, no extra detail | Compatible |
+| P5 | within 10% in time | within 10% in comparisons, g = 7 not faster in time | Compatible |
 | P6 | sorted() wins at small n, quickselect may win at 10^6 | sorted() wins at every size, the gap narrows | DISAGREEMENT |
-| P7 | all_equal and few_distinct cheapest for quickselect, reverse_sorted worst for median of medians | Adds detail | Compatible |
-| P8a | quickselect cheaper at the ends | Compatible, no extra detail | Compatible |
-| P8b | median of medians within 10% across k | Compatible, no extra detail | Compatible |
-| P9a | identical comparison counts | Same | Same |
-| P9b | time ratio changes by less than 20% | No threshold | Different |
+| P7 | all_equal and few_distinct cheapest for quickselect, reverse_sorted worst for median of medians | same as An Loc, plus sorted cheapest for median of medians, and about 0.375 n^2 comparisons for the 2-way partition on all_equal | Compatible |
+| P8a | quickselect cheaper at the ends | k = n/2 most expensive, k = 0 cheapest, k = n/10 and 9n/10 in between and close | Compatible |
+| P8b | median of medians within 10% across k | about the same for every k | Compatible |
+| P9a | identical comparison counts | comparison counts do not change with prefix length | Same |
+| P9b | time ratio changes by less than 20% | no ratio threshold; only says the order of the algorithms does not change | Different |
 | P9c | within 30% at prefix length 100 | grows by less than 50% | Different |
 
 Decision: An Loc's predictions are locked unchanged, because they are the only ones written without access to experiment numbers. Trung's versions of P4, P6 and P9c are recorded here as noted and not adopted. Details from Trung's draft that cite a formula (Knuth's expected cost) are not verified in our counting and are not adopted.
