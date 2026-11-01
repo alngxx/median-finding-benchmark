@@ -1,0 +1,7 @@
+experiments: e1 e2 e3 e4 e5 e6
+python: CPython 3.13.1
+os: Windows-11-10.0.26300-SP0
+cpu: AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD
+logical cpus: 16
+median_of_medians.BASE_CUTOFF: 25
+settings: {'sizes': [1000, 2154, 4642, 10000, 21544, 46416, 100000, 215443, 464159, 1000000], 'instances': 10, 'reps': 5, 'e2_n': 100000, 'dup_n': 10000, 'e3_n': 100000, 'e3_runs': 1000, 'e5_n': 100000, 'e6_max_n': 100000, 'e6_instances': 5}
