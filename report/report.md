@@ -67,7 +67,7 @@ Selection takes an unsorted list of n comparable values and an index k (0-indexe
 <!-- AI-DRAFT: An Loc to review and rewrite -->
 Quickselect (Hoare, 1961; details of the citation not verified) repeats one round until it can answer. A round picks a pivot uniformly at random with `rng.randrange`, then splits the current list into three parts using only `<` and `==`: the elements less than the pivot, equal to it, and greater than it. If k is below the size of the less part, the loop continues with the less part. If k falls inside the equal part, the pivot is the answer. Otherwise the loop continues with the greater part, and k is reduced by the sizes of the less and equal parts. The loop is iterative, because Python's recursion limit is 1,000 (CLAUDE.md).
 
-**Expected time.** A pivot lands in the middle half of the elements with probability 1/2, and then the next list has at most 3/4 of the elements. Counting a bad pivot as a round that does not shrink the list, the expected work satisfies T(n) <= n + T(n)/2 + T(3n/4)/2. This gives T(n) <= 2n + T(3n/4), so T(n) <= 8n element visits. The bound is loose; the measured counts are in sections 4.1 and 4.3. We have not checked the argument against CLRS (not verified). The worst case is O(n^2), but it needs a long run of bad pivots, so its probability is tiny.
+**Expected time.** A pivot lands in the middle half of the elements with probability 1/2, and then the next list has at most 3/4 of the elements. Counting a bad pivot as a round that does not shrink the list, the expected work satisfies T(n) <= n + T(n)/2 + T(3n/4)/2. This gives T(n) <= 2n + T(3n/4), so T(n) <= 8n element visits. The bound is loose; the measured counts are in sections 4.1 and 4.3. An Loc read CLRS section 9.2 alongside this argument. The worst case is O(n^2), but it needs a long run of bad pivots, so its probability is tiny.
 
 **Duplicates and counting.** The 3-way split removes every element equal to the pivot in one round. A 2-way partition does not: on a list of all equal values with n = 10^4, `select` used 20,000 comparisons and `select_two_way` used 37,502,499 (results/e2.csv, part e2_dup). Our 3-way split costs 1 comparison for an element less than the pivot and 2 otherwise (`<`, then `==`).
 
@@ -126,7 +126,7 @@ Quickselect does one partition pass per round and no other work, so a round cost
 
 ### Predictions (locked before the experiments)
 
-The predictions below were written before the official run and locked with the git tag `predictions-locked` (commit 3ae1dd7). They are copied unchanged. The locked predictions were first drafted by Claude Code from the structure of the algorithms, then reviewed and edited by An Loc. An Loc saw no experiment results before they were locked, apart from the two numbers disclosed in the Authorship note of report/predictions.md. Thanh Trung's draft, written after he saw rough numbers from a pilot run, is recorded in `report/predictions.md` but was not used.
+The predictions below were written before the official run and locked with the git tag `predictions-locked` (commit 3ae1dd7). They are copied unchanged. The locked predictions were first drafted by Claude Code from the structure of the algorithms, then reviewed and edited by An Loc. An Loc saw no experiment results before they were locked, apart from the two numbers disclosed in the Authorship note of report/predictions.md. Thanh Trung's draft, written after he saw rough numbers from a pilot run, is recorded in `report/predictions.md` but was not used. The Authorship note inside report/predictions.md says "Changes An Loc made: none". That is not accurate: the first draft was written by Claude Code, and An Loc then edited it. The corrected Authorship and Differences text, with a table comparing the two drafts, is on the branch backup-predictions (commits 7d5380b and affc099), which the locked file does not contain.
 
 #### P1: Which algorithm is faster on random inputs, and by what factor?
 
@@ -443,7 +443,7 @@ Predictions: P9a, P9b, P9c.
 | P6 | | |
 | P7 | | |
 | P8a | E5 medians (analysis/anloc_numbers.md): 2.59 comparisons per element at k = 0, 4.52 at n/2, 4.35 at 9n/10; time 6.58, 11.8 and 9.77 ms, so 9n/10 is 17% below n/2 in time. In E5 alone the comparison difference at 9n/10 is only 4% and the ranges overlap (2.06 to 5.81 against 3.05 to 8.74). Supplementary 300-seed means (analysis/anloc_asymmetry.md, comparisons only, not part of the committed E5 data): 3.98 at n/10, 5.07 at n/2, 4.17 at 9n/10, so both ends are clearly cheaper than the middle | Held on the medians, not clearly in E5 alone |
-| P8b | Largest relative difference across k = 0, n/10, n/2, 9n/10: 0.146% in comparisons, 1.22% in time, predicted within 10% (analysis/anloc_numbers.md) | Held |
+| P8b | Largest relative difference across k = 0, n/10, n/2, 9n/10: 0.146% in comparisons, 0.950% in time, predicted within 10% (analysis/anloc_numbers.md) | Held |
 | P9a | | |
 | P9b | | |
 | P9c | | |
