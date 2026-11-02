@@ -126,7 +126,7 @@ Quickselect does one partition pass per round and no other work, so a round cost
 
 ### Predictions (locked before the experiments)
 
-The predictions below were written before the official run and locked with the git tag `predictions-locked` (commit 3ae1dd7). They are copied unchanged. The locked predictions were first drafted by Claude Code from the structure of the algorithms, before any results were seen by An Loc, then reviewed and edited by An Loc. Thanh Trung's draft, written after he saw rough numbers from a pilot run, is recorded in `report/predictions.md` but was not used.
+The predictions below were written before the official run and locked with the git tag `predictions-locked` (commit 3ae1dd7). They are copied unchanged. The locked predictions were first drafted by Claude Code from the structure of the algorithms, then reviewed and edited by An Loc. An Loc saw no experiment results before they were locked, apart from the two numbers disclosed in the Authorship note of report/predictions.md. Thanh Trung's draft, written after he saw rough numbers from a pilot run, is recorded in `report/predictions.md` but was not used.
 
 #### P1: Which algorithm is faster on random inputs, and by what factor?
 
@@ -391,7 +391,7 @@ Predictions: P8a, P8b.
 <!-- AI-DRAFT: An Loc to review and rewrite -->
 The table gives the median over 10 instances at n = 10^5, with the minimum and maximum over instances. Time is the median of all 50 timed runs per k (10 instances, 5 runs each), the statistic that `bench/plot.py` uses for its time figures (analysis/anloc_numbers.md, from results/e5.csv).
 
-| k | comparisons per element | min to max | time (ms) |
+| k | comparisons per element (median over 10 instances) | min to max over instances | time (ms, pooled median of all 50 timed runs) |
 |---|---|---|---|
 | 0 | 2.59 | 2.17 to 3.86 | 6.58 |
 | n/10 | 3.14 | 2.43 to 6.46 | 8.49 |
@@ -442,7 +442,7 @@ Predictions: P9a, P9b, P9c.
 | P5 | | |
 | P6 | | |
 | P7 | | |
-| P8a | E5 medians (analysis/anloc_numbers.md): 2.59 comparisons per element at k = 0, 4.52 at n/2, 4.35 at 9n/10; time 6.58, 11.8 and 9.77 ms, so 9n/10 is 17% below n/2 in time. In E5 alone the comparison difference at 9n/10 is only 4% and the ranges overlap (2.06 to 5.81 against 3.05 to 8.74). Supplementary 300-seed means (analysis/anloc_asymmetry.md, comparisons only, not part of the committed E5 data): 3.98 at n/10, 5.07 at n/2, 4.17 at 9n/10, so both ends are clearly cheaper than the middle | Held |
+| P8a | E5 medians (analysis/anloc_numbers.md): 2.59 comparisons per element at k = 0, 4.52 at n/2, 4.35 at 9n/10; time 6.58, 11.8 and 9.77 ms, so 9n/10 is 17% below n/2 in time. In E5 alone the comparison difference at 9n/10 is only 4% and the ranges overlap (2.06 to 5.81 against 3.05 to 8.74). Supplementary 300-seed means (analysis/anloc_asymmetry.md, comparisons only, not part of the committed E5 data): 3.98 at n/10, 5.07 at n/2, 4.17 at 9n/10, so both ends are clearly cheaper than the middle | Held on the medians, not clearly in E5 alone |
 | P8b | Largest relative difference across k = 0, n/10, n/2, 9n/10: 0.146% in comparisons, 1.22% in time, predicted within 10% (analysis/anloc_numbers.md) | Held |
 | P9a | | |
 | P9b | | |
