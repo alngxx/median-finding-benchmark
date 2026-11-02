@@ -57,13 +57,19 @@ The brief: "State the problem precisely. Describe each algorithm at a level that
 
 <!-- WRITER: An Loc -->
 
-[An Loc: the selection problem. Input: an unsorted list of n comparable values and an index k, 0-indexed. Output: the k-th smallest value; the median is k = n // 2. Why sorting first (O(n log n)) is more than needed. Our shared contract: select(a, k, rng), compares only with < and ==.]
+<!-- AI-DRAFT: An Loc to review and rewrite -->
+Selection takes an unsorted list of n comparable values and an index k (0-indexed) and returns the k-th smallest value. The median is k = n // 2. Sorting the list and reading element k takes O(n log n) time, but it orders far more than the question needs, and both of our algorithms aim for O(n). They share one contract, `select(a, k, rng)`, which raises `ValueError` for an empty list or k out of range and compares elements only with `<` and `==`, so one wrapper counts the comparisons of both algorithms in the same way (README.md).
 
 ### Randomized quickselect (primary author: An Loc Nguyen)
 
 <!-- WRITER: An Loc -->
 
-[An Loc: key idea (random pivot, 3-way partition into less, equal, greater, continue in the part that holds k); why the expected time is O(n) (a pivot in the middle half with probability 1/2 keeps at most 3/4 of the list); worst case O(n^2) with tiny probability; why a 3-way partition is needed for duplicates; iterative, no recursion. Cite Hoare (1961).]
+<!-- AI-DRAFT: An Loc to review and rewrite -->
+Quickselect (Hoare, 1961; details of the citation not verified) repeats one round until it can answer. A round picks a pivot uniformly at random with `rng.randrange`, then splits the current list into three parts using only `<` and `==`: the elements less than the pivot, equal to it, and greater than it. If k is below the size of the less part, the loop continues with the less part. If k falls inside the equal part, the pivot is the answer. Otherwise the loop continues with the greater part, and k is reduced by the sizes of the less and equal parts. The loop is iterative, because Python's recursion limit is 1,000 (CLAUDE.md).
+
+**Expected time.** A pivot lands in the middle half of the elements with probability 1/2, and then the next list has at most 3/4 of the elements. Counting a bad pivot as a round that does not shrink the list, the expected work satisfies T(n) <= n + T(n)/2 + T(3n/4)/2. This gives T(n) <= 2n + T(3n/4), so T(n) <= 8n element visits. The bound is loose; the measured counts are in sections 4.1 and 4.3. We have not checked the argument against CLRS (not verified). The worst case is O(n^2), but it needs a long run of bad pivots, so its probability is tiny.
+
+**Duplicates and counting.** The 3-way split removes every element equal to the pivot in one round. A 2-way partition does not: on a list of all equal values with n = 2000, `select` used 4,000 comparisons and `select_two_way` used 1,500,499 (notes/anloc.md, from a unit test). Our 3-way split costs 1 comparison for an element less than the pivot and 2 otherwise (`<`, then `==`).
 
 ### Median of medians (primary author: Thanh Trung Le)
 
@@ -112,6 +118,9 @@ The brief: compare on paper (asymptotic complexity, constant factors and memory 
 | Sensitive to input order? | No, the pivot is random | Yes, through the insertion sorts inside groups |
 | Sensitive to duplicates? | 3-way partition removes every element equal to the pivot | the same |
 | Sensitive to the position of k? | Yes, in expectation | Little, the pivot is near the median for any k |
+
+<!-- AI-DRAFT: An Loc to review and rewrite -->
+Quickselect does one partition pass per round and no other work, so a round costs about the length of the current list, with 1 comparison for an element less than the pivot and 2 otherwise. The total varies from run to run because the pivots are random, and it does not depend on the order of the input, because the pivot is random. Duplicates make it cheaper, since the 3-way partition drops every element equal to the pivot. Its cost depends on k in expectation: with a random pivot, a k near an end lets each round discard more of the list.
 
 [Paragraphs on constant factors and what each algorithm is sensitive to.]
 
@@ -335,7 +344,14 @@ NUMBERS (An Loc), 1000 seeds, one instance, n = 10^5, k = n/2:
 Predictions: P3.
 -->
 
-[An Loc: text.]
+<!-- AI-DRAFT: An Loc to review and rewrite -->
+The figure `figures/e3_quickselect_tail.png` shows the comparison counts of 1000 runs of quickselect on one instance (n = 10^5, k = n/2), one run per rng seed. All numbers in this subsection come from analysis/anloc_numbers.md, which reads results/e3.csv.
+
+The mean is 505,000 comparisons (5.05 per element) and the median is 487,000 (4.87 per element), so the distribution is skewed to the right. The standard deviation is 1.49 per element. The 99th percentile is 8.99 per element, and the maximum is 986,000 comparisons (9.86 per element), which is 1.95 times the mean. The minimum is 2.08 per element. Every run uses the same instance, so all of this spread comes from the random pivots. A likely reason for the long right tail is that a bad early pivot keeps most of the list for another full pass, while a good one removes about half; we did not test this explanation.
+
+Median of medians, which makes no random choices, used 969,000 comparisons (9.69 per element) on the same instance. Quickselect used fewer comparisons than median of medians in 998 of the 1000 seeds, and more in the other 2. The unlucky tail of quickselect therefore reaches the cost of median of medians but almost never passes it.
+
+Prediction P3 (maximum between 1.5 and 3 times the mean) held: the measured ratio is 1.95.
 
 ### 4.4 Group size (E4) (Trung)
 
@@ -372,7 +388,23 @@ Point to explain: quickselect is not symmetric (n/10 is much cheaper than 9n/10)
 Predictions: P8a, P8b.
 -->
 
-[An Loc: text.]
+<!-- AI-DRAFT: An Loc to review and rewrite -->
+The table gives the median over 10 instances at n = 10^5, with the minimum and maximum over instances (analysis/anloc_numbers.md, from results/e5.csv).
+
+| k | comparisons per element | min to max | time (ms) |
+|---|---|---|---|
+| 0 | 2.59 | 2.17 to 3.86 | 6.80 |
+| n/10 | 3.14 | 2.43 to 6.46 | 8.87 |
+| n/2 | 4.52 | 3.05 to 8.74 | 11.6 |
+| 9n/10 | 4.35 | 2.06 to 5.81 | 9.71 |
+
+Median of medians does not depend on k: its median comparisons per element are 9.90, 9.90, 9.91 and 9.92 for the four k, and the largest relative difference across the four k is 0.146% in comparisons and 1.22% in time (same file). With a random pivot, a k near an end lets each round discard more of the list, which fits k = 0 being cheapest and k = n/2 most expensive.
+
+The table also shows a gap between k = n/10 (3.14) and k = 9n/10 (4.35). A candidate cause is our counting rule: an element less than the pivot costs 1 comparison and any other element costs 2, so a search near the top might pay more. But the ranges overlap heavily (2.43 to 6.46 against 2.06 to 5.81), so we ran a supplementary test.
+
+**Supplementary, not part of the committed E5 data.** This run uses 300 different seeds (1000 to 1299), the same n, and the same instance and rng seed for every k. It reports means, not medians (analysis/anloc_asymmetry.md). The total comparisons per element are 3.98 (standard error 0.0611) at k = n/10, 5.07 (0.0957) at k = n/2 and 4.17 (0.0942) at k = 9n/10. The paired difference between k = 9n/10 and k = n/10 is 0.190 per element with standard error 0.123, which is less than two standard errors from zero and not significant. The E5 gap was therefore mostly sampling noise. (These are different statistics, a median over 10 instances and a mean over 300 seeds; over the same 10 instances the means were 3.65 and 4.25, analysis/anloc_numbers.md.) The direction of the remaining difference is consistent with the counting rule, but the data cannot show that the rule causes it. What the supplementary run does show clearly is that both ends are cheaper than the middle: 3.98 and 4.17 against 5.07, differences much larger than the standard errors.
+
+Predictions P8a and P8b are assessed in section 4.7.
 
 ### 4.6 Slow comparisons (E6) (Trung)
 
@@ -399,17 +431,19 @@ Predictions: P9a, P9b, P9c.
 
 <!-- Fill in from the numbers above: held, partly held, or failed, with the number. -->
 
+<!-- AI-DRAFT: An Loc to review and rewrite (rows P3, P8a, P8b) -->
+
 | Prediction | Result | Held? |
 |---|---|---|
 | P1 | | |
 | P2 | | |
-| P3 | | |
+| P3 | Maximum / mean = 1.95 over 1000 seeds, predicted 1.5 to 3 (analysis/anloc_numbers.md) | Held |
 | P4 | | |
 | P5 | | |
 | P6 | | |
 | P7 | | |
-| P8a | | |
-| P8b | | |
+| P8a | E5 medians (analysis/anloc_numbers.md): 2.59 comparisons per element at k = 0, 4.52 at n/2, 4.35 at 9n/10; time 6.80, 11.6 and 9.71 ms. At 9n/10 the comparisons are only 4% below n/2 and the ranges overlap (2.06 to 5.81 against 3.05 to 8.74), so E5 alone is not clear. Supplementary 300-seed means (analysis/anloc_asymmetry.md, comparisons only, not part of the committed E5 data): 3.98 at n/10, 5.07 at n/2, 4.17 at 9n/10, so both ends are cheaper than the middle | Partly held |
+| P8b | Largest relative difference across k = 0, n/10, n/2, 9n/10: 0.146% in comparisons, 1.22% in time, predicted within 10% (analysis/anloc_numbers.md) | Held |
 | P9a | | |
 | P9b | | |
 | P9c | | |
