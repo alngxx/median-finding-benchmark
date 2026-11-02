@@ -7,9 +7,10 @@ Author: An Loc Nguyen
 class Counted:
     """Wraps a value and counts comparisons in a class-level counter.
 
-    Only __lt__ and __eq__ compare and count. Python derives ">" from the
-    reflected __lt__ and "!=" from __eq__, which would go uncounted, so
-    __le__, __gt__, __ge__ and __ne__ are defined to raise TypeError.
+    Only __lt__ and __eq__ compare and count. The explicit TypeError overrides
+    (__le__, __gt__, __ge__, __ne__) do not fix the counting. They enforce the
+    rule that algorithms use only < and ==, so a violation fails loudly and both
+    algorithms are held to the same operations.
     """
 
     count = 0
