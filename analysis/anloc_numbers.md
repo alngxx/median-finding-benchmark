@@ -22,23 +22,23 @@ Source: results/e3.csv and results/e5.csv. Values are rounded to 3 significant f
 | median of medians, single run | 969,000 (9.69 n) |
 | seeds where quickselect used fewer comparisons than median of medians | 998 of 1000 |
 
-## E5: position of k (n = 100000, 10 instances; min and max are over instances)
+## E5: position of k (n = 100000, 10 instances). Comparisons: median, min and max over instances. Time: median, min and max over all 50 timed runs per row, the statistic bench/plot.py uses for its time figures.
 
 | algorithm | k | comparisons / n (median) | min | max | time ms (median) | min | max |
 |---|---|---|---|---|---|---|---|
-| quickselect | 0 | 2.59 | 2.17 | 3.86 | 6.80 | 4.75 | 11.2 |
-| quickselect | 10000 | 3.14 | 2.43 | 6.46 | 8.87 | 6.72 | 12.5 |
-| quickselect | 50000 | 4.52 | 3.05 | 8.74 | 11.6 | 9.25 | 14.0 |
-| quickselect | 90000 | 4.35 | 2.06 | 5.81 | 9.71 | 7.69 | 19.8 |
-| median_of_medians | 0 | 9.90 | 9.87 | 9.95 | 63.5 | 62.1 | 64.9 |
-| median_of_medians | 10000 | 9.90 | 9.88 | 9.95 | 63.7 | 61.3 | 66.8 |
-| median_of_medians | 50000 | 9.91 | 9.69 | 9.96 | 63.2 | 61.2 | 67.1 |
-| median_of_medians | 90000 | 9.92 | 9.78 | 9.94 | 63.0 | 61.7 | 64.6 |
+| quickselect | 0 | 2.59 | 2.17 | 3.86 | 6.58 | 4.00 | 33.5 |
+| quickselect | 10000 | 3.14 | 2.43 | 6.46 | 8.49 | 5.00 | 16.7 |
+| quickselect | 50000 | 4.52 | 3.05 | 8.74 | 11.8 | 7.21 | 20.8 |
+| quickselect | 90000 | 4.35 | 2.06 | 5.81 | 9.77 | 4.49 | 29.8 |
+| median_of_medians | 0 | 9.90 | 9.87 | 9.95 | 63.6 | 61.0 | 72.2 |
+| median_of_medians | 10000 | 9.90 | 9.88 | 9.95 | 63.6 | 60.9 | 71.5 |
+| median_of_medians | 50000 | 9.91 | 9.69 | 9.96 | 63.1 | 60.6 | 67.4 |
+| median_of_medians | 90000 | 9.92 | 9.78 | 9.94 | 63.0 | 61.3 | 64.8 |
 
 | median of medians, largest relative difference across the four k | value |
 |---|---|
 | comparisons / n | 0.146% |
-| time | 1.22% |
+| time | 0.950% |
 
 ## E5: quickselect, mean count per element of < and == (n = 100000, 10 instances)
 

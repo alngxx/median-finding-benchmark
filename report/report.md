@@ -69,7 +69,7 @@ Quickselect (Hoare, 1961; details of the citation not verified) repeats one roun
 
 **Expected time.** A pivot lands in the middle half of the elements with probability 1/2, and then the next list has at most 3/4 of the elements. Counting a bad pivot as a round that does not shrink the list, the expected work satisfies T(n) <= n + T(n)/2 + T(3n/4)/2. This gives T(n) <= 2n + T(3n/4), so T(n) <= 8n element visits. The bound is loose; the measured counts are in sections 4.1 and 4.3. We have not checked the argument against CLRS (not verified). The worst case is O(n^2), but it needs a long run of bad pivots, so its probability is tiny.
 
-**Duplicates and counting.** The 3-way split removes every element equal to the pivot in one round. A 2-way partition does not: on a list of all equal values with n = 2000, `select` used 4,000 comparisons and `select_two_way` used 1,500,499 (notes/anloc.md, from a unit test). Our 3-way split costs 1 comparison for an element less than the pivot and 2 otherwise (`<`, then `==`).
+**Duplicates and counting.** The 3-way split removes every element equal to the pivot in one round. A 2-way partition does not: on a list of all equal values with n = 10^4, `select` used 20,000 comparisons and `select_two_way` used 37,502,499 (results/e2.csv, part e2_dup). Our 3-way split costs 1 comparison for an element less than the pivot and 2 otherwise (`<`, then `==`).
 
 ### Median of medians (primary author: Thanh Trung Le)
 
@@ -126,7 +126,7 @@ Quickselect does one partition pass per round and no other work, so a round cost
 
 ### Predictions (locked before the experiments)
 
-The predictions below were written before the official run and locked with the git tag `predictions-locked` (commit 3ae1dd7). They are copied unchanged. An Loc's draft was locked. Thanh Trung's draft, written after he saw rough numbers from a pilot run, is recorded in `report/predictions.md` but was not used.
+The predictions below were written before the official run and locked with the git tag `predictions-locked` (commit 3ae1dd7). They are copied unchanged. The locked predictions were first drafted by Claude Code from the structure of the algorithms, before any results were seen by An Loc, then reviewed and edited by An Loc. Thanh Trung's draft, written after he saw rough numbers from a pilot run, is recorded in `report/predictions.md` but was not used.
 
 #### P1: Which algorithm is faster on random inputs, and by what factor?
 
@@ -349,7 +349,7 @@ The figure `figures/e3_quickselect_tail.png` shows the comparison counts of 1000
 
 The mean is 505,000 comparisons (5.05 per element) and the median is 487,000 (4.87 per element), so the distribution is skewed to the right. The standard deviation is 1.49 per element. The 99th percentile is 8.99 per element, and the maximum is 986,000 comparisons (9.86 per element), which is 1.95 times the mean. The minimum is 2.08 per element. Every run uses the same instance, so all of this spread comes from the random pivots. A likely reason for the long right tail is that a bad early pivot keeps most of the list for another full pass, while a good one removes about half; we did not test this explanation.
 
-Median of medians, which makes no random choices, used 969,000 comparisons (9.69 per element) on the same instance. Quickselect used fewer comparisons than median of medians in 998 of the 1000 seeds, and more in the other 2. The unlucky tail of quickselect therefore reaches the cost of median of medians but almost never passes it.
+Median of medians, which makes no random choices, used 969,000 comparisons (9.69 per element) on the same instance. Quickselect used fewer comparisons than median of medians in 998 of the 1000 seeds, and did not in the remaining 2. The unlucky tail of quickselect therefore reaches the cost of median of medians but almost never passes it.
 
 Prediction P3 (maximum between 1.5 and 3 times the mean) held: the measured ratio is 1.95.
 
@@ -389,20 +389,20 @@ Predictions: P8a, P8b.
 -->
 
 <!-- AI-DRAFT: An Loc to review and rewrite -->
-The table gives the median over 10 instances at n = 10^5, with the minimum and maximum over instances (analysis/anloc_numbers.md, from results/e5.csv).
+The table gives the median over 10 instances at n = 10^5, with the minimum and maximum over instances. Time is the median of all 50 timed runs per k (10 instances, 5 runs each), the statistic that `bench/plot.py` uses for its time figures (analysis/anloc_numbers.md, from results/e5.csv).
 
 | k | comparisons per element | min to max | time (ms) |
 |---|---|---|---|
-| 0 | 2.59 | 2.17 to 3.86 | 6.80 |
-| n/10 | 3.14 | 2.43 to 6.46 | 8.87 |
-| n/2 | 4.52 | 3.05 to 8.74 | 11.6 |
-| 9n/10 | 4.35 | 2.06 to 5.81 | 9.71 |
+| 0 | 2.59 | 2.17 to 3.86 | 6.58 |
+| n/10 | 3.14 | 2.43 to 6.46 | 8.49 |
+| n/2 | 4.52 | 3.05 to 8.74 | 11.8 |
+| 9n/10 | 4.35 | 2.06 to 5.81 | 9.77 |
 
-Median of medians does not depend on k: its median comparisons per element are 9.90, 9.90, 9.91 and 9.92 for the four k, and the largest relative difference across the four k is 0.146% in comparisons and 1.22% in time (same file). With a random pivot, a k near an end lets each round discard more of the list, which fits k = 0 being cheapest and k = n/2 most expensive.
+Median of medians does not depend on k: its median comparisons per element are 9.90, 9.90, 9.91 and 9.92 for the four k, and the largest relative difference across the four k is 0.146% in comparisons and 0.950% in time (same file). With a random pivot, a k near an end lets each round discard more of the list, which fits k = 0 being cheapest and k = n/2 most expensive.
 
 The table also shows a gap between k = n/10 (3.14) and k = 9n/10 (4.35). A candidate cause is our counting rule: an element less than the pivot costs 1 comparison and any other element costs 2, so a search near the top might pay more. But the ranges overlap heavily (2.43 to 6.46 against 2.06 to 5.81), so we ran a supplementary test.
 
-**Supplementary, not part of the committed E5 data.** This run uses 300 different seeds (1000 to 1299), the same n, and the same instance and rng seed for every k. It reports means, not medians (analysis/anloc_asymmetry.md). The total comparisons per element are 3.98 (standard error 0.0611) at k = n/10, 5.07 (0.0957) at k = n/2 and 4.17 (0.0942) at k = 9n/10. The paired difference between k = 9n/10 and k = n/10 is 0.190 per element with standard error 0.123, which is less than two standard errors from zero and not significant. The E5 gap was therefore mostly sampling noise. (These are different statistics, a median over 10 instances and a mean over 300 seeds; over the same 10 instances the means were 3.65 and 4.25, analysis/anloc_numbers.md.) The direction of the remaining difference is consistent with the counting rule, but the data cannot show that the rule causes it. What the supplementary run does show clearly is that both ends are cheaper than the middle: 3.98 and 4.17 against 5.07, differences much larger than the standard errors.
+**Supplementary, not part of the committed E5 data.** This run uses 300 different seeds (1000 to 1299), the same n, and the same instance and rng seed for every k. It reports means, not medians (analysis/anloc_asymmetry.md). The total comparisons per element are 3.98 (standard error 0.0611) at k = n/10, 5.07 (0.0957) at k = n/2 and 4.17 (0.0942) at k = 9n/10. The E5 medians at k = n/10 and k = 9n/10 differ by 1.21 comparisons per element (3.14 against 4.35). The means over the same 10 instances differ by 0.60 (3.65 against 4.25, analysis/anloc_numbers.md). The paired mean difference over the 300 seeds, k = 9n/10 minus k = n/10, is 0.190 per element with standard error 0.123, about 1.5 standard errors. The E5 gap is therefore probably mostly sampling noise, but a small real difference of up to about 0.4 per element (0.190 plus two standard errors) is not ruled out. The direction fits the counting rule (a round's cost correlates with the size of the list that remains when k is high), but the data cannot show that the rule causes it. What the supplementary run does show clearly is that both ends are cheaper than the middle: 3.98 and 4.17 against 5.07, differences much larger than the standard errors.
 
 Predictions P8a and P8b are assessed in section 4.7.
 
@@ -442,7 +442,7 @@ Predictions: P9a, P9b, P9c.
 | P5 | | |
 | P6 | | |
 | P7 | | |
-| P8a | E5 medians (analysis/anloc_numbers.md): 2.59 comparisons per element at k = 0, 4.52 at n/2, 4.35 at 9n/10; time 6.80, 11.6 and 9.71 ms. At 9n/10 the comparisons are only 4% below n/2 and the ranges overlap (2.06 to 5.81 against 3.05 to 8.74), so E5 alone is not clear. Supplementary 300-seed means (analysis/anloc_asymmetry.md, comparisons only, not part of the committed E5 data): 3.98 at n/10, 5.07 at n/2, 4.17 at 9n/10, so both ends are cheaper than the middle | Partly held |
+| P8a | E5 medians (analysis/anloc_numbers.md): 2.59 comparisons per element at k = 0, 4.52 at n/2, 4.35 at 9n/10; time 6.58, 11.8 and 9.77 ms, so 9n/10 is 17% below n/2 in time. In E5 alone the comparison difference at 9n/10 is only 4% and the ranges overlap (2.06 to 5.81 against 3.05 to 8.74). Supplementary 300-seed means (analysis/anloc_asymmetry.md, comparisons only, not part of the committed E5 data): 3.98 at n/10, 5.07 at n/2, 4.17 at 9n/10, so both ends are clearly cheaper than the middle | Held |
 | P8b | Largest relative difference across k = 0, n/10, n/2, 9n/10: 0.146% in comparisons, 1.22% in time, predicted within 10% (analysis/anloc_numbers.md) | Held |
 | P9a | | |
 | P9b | | |

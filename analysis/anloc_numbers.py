@@ -112,8 +112,7 @@ def e5_section(d):
         for k in ks:
             sub = d[(d["algorithm"] == algo) & (d["k"] == k)]
             counts = sub[sub["rep"] == "count"].set_index("instance_seed")["comparisons"].astype(float) / n
-            timed = sub[sub["rep"] != "count"]
-            ms = timed.groupby("instance_seed")["seconds"].median() * 1000
+            ms = sub[sub["rep"] != "count"]["seconds"].astype(float) * 1000
             summary[(algo, k)] = (counts.median(), ms.median())
             rows.append((
                 algo, k,
@@ -122,12 +121,14 @@ def e5_section(d):
             ))
     header = ["algorithm", "k", "comparisons / n (median)", "min", "max",
               "time ms (median)", "min", "max"]
+    reps = len(d[(d["algorithm"] == "quickselect") & (d["k"] == ks[0]) & (d["rep"] != "count")])
     mom_counts = [summary[("median_of_medians", k)][0] for k in ks]
     mom_times = [summary[("median_of_medians", k)][1] for k in ks]
     rel_counts = (max(mom_counts) - min(mom_counts)) / min(mom_counts)
     rel_times = (max(mom_times) - min(mom_times)) / min(mom_times)
     parts = [
-        f"## E5: position of k (n = {n}, {d['instance_seed'].nunique()} instances; min and max are over instances)",
+        f"## E5: position of k (n = {n}, {d['instance_seed'].nunique()} instances). Comparisons: median, min and max over instances. "
+        f"Time: median, min and max over all {reps} timed runs per row, the statistic bench/plot.py uses for its time figures.",
         table(header, rows),
         table(["median of medians, largest relative difference across the four k", "value"], [
             ("comparisons / n", f"{sig3(rel_counts * 100)}%"),
