@@ -466,11 +466,18 @@ Candidates (pick on the results call):
 
 [Predicted: ... Measured: ... Explanation and how we checked it: ...]
 
-### 5.2 [Surprise title] (Loc)
+### 5.2 An asymmetry in k that did not survive a larger sample (An Loc)
 
 <!-- WRITER: An Loc -->
 
-[Predicted: ... Measured: ... Explanation and how we checked it: ...]
+<!-- AI-DRAFT: An Loc to review and rewrite -->
+**Predicted.** P8a said quickselect is cheaper at k = 0 and k = 9n/10 than at k = n/2, because a k near an end lets each round throw away more of the list. That reason treats both ends alike, so we expected k = n/10 and k = 9n/10 to cost about the same.
+
+**Measured.** In E5 (10 instances, n = 10^5) the median cost was 3.14 comparisons per element at k = n/10 and 4.35 at k = 9n/10, a gap of 1.21. The two ranges overlap heavily (2.43 to 6.46 and 2.06 to 5.81). Over the same 10 instances the means were 3.65 and 4.25, a gap of 0.60 (analysis/anloc_numbers.md).
+
+**Explanation, and how we tested it.** Our first candidate was the counting rule: an element less than the pivot costs 1 comparison and any other element costs 2 (`<`, then `==`). We counted `<` and `==` separately for the E5 runs. The totals matched the committed comparison counts in 40 of 40 runs, so the split counts are reliable. The ratio of `==` to `<` was about 0.57 at k = n/10 and 0.54 at k = 9n/10, so the split gave no clear support for the rule. Then we asked whether the gap was real at all. We reran k = n/10, n/2 and 9n/10 on 300 new seeds, with the same instance and the same rng seed for every k, and compared the k values in pairs (analysis/anloc_asymmetry.md; supplementary, not part of the committed E5 data). The mean difference between k = 9n/10 and k = n/10 was 0.190 comparisons per element with a standard error of 0.123, about 1.5 standard errors. The E5 gap was therefore probably mostly sampling noise. A real difference of up to about 0.4 per element is not ruled out. Its direction is consistent with the counting rule, but our data cannot show that the rule causes it.
+
+**What we take from it.** Ten instances were too few for quickselect, whose cost varies widely between instances (2.06 to 5.81 per element at one k). What the larger run does show clearly is that both ends are cheaper than the middle: 3.98 and 4.17 against 5.07 comparisons per element.
 
 ## 6. What we would do next (Trung)
 
@@ -491,7 +498,8 @@ Candidates: E7, the McIlroy-style adversary (dropped); Floyd-Rivest and Quicksel
 GUIDE (about 200 words; each writes their own paragraph). Beyond your primary algorithm. Be honest; an uneven split is fine but must be visible. Mention that the git name "Taki" is Thanh Trung Le.
 -->
 
-**An Loc Nguyen.** [Paragraph.]
+<!-- AI-DRAFT: An Loc to review and rewrite -->
+**An Loc Nguyen.** I wrote quickselect (`select`) and its 2-way variant (`select_two_way`) with tests, the input generators (`bench/generators.py`) and the comparison-counting wrapper (`bench/counting.py`). I set up the repository: layout, `CLAUDE.md` with the shared coding rules, and the README. I wrote the analysis scripts for E3 and E5 and the supplementary 300-seed check, and I wrote or edited Sections 1 (the problem and quickselect), 2 (the quickselect paragraph), 4.3, 4.5, 5.2, my rows in 4.7, and the reflection. I reviewed and edited the predictions that were locked. I also kept the AI error log, the status files and the task list for the group. Thanh Trung wrote median of medians, the runner and the plots, ran every experiment (including the re-run after the CPU slowdown), wrote Section 3 and most of Section 4 and 5.1, and stitched the video, so he did more of the experimental and report work than I did. I did not independently review `median_of_medians.py` or `run_bench.py`. I spent about 10 to 15 hours in total (an estimate). Commits under the name "Taki" are Thanh Trung Le's.
 
 **Thanh Trung Le.** [Paragraph.]
 
@@ -510,7 +518,8 @@ Also say what you took on trust without checking.
 
 <!-- WRITER: each person writes their own paragraph -->
 
-**An Loc Nguyen.** [Paragraph.]
+<!-- AI-DRAFT: An Loc to review and rewrite -->
+**An Loc Nguyen.** I used Claude (claude.ai chat) to plan the work, write prompts for Claude Code, draft emails to the lecturer, check numbers in the report drafts against the analysis files, and draft Sections 5.2, 7, 8 and my reflection from our committed files, which I then read and edited. I used Claude Code (Sonnet 5.5, medium effort) to write the generators, the counter, quickselect, the tests, the README, `CLAUDE.md`, the analysis scripts and the first draft of my parts of Sections 1, 2 and 4; each paragraph carried an AI-DRAFT mark until I had edited it. The independent review of quickselect was run in a separate session from the one that wrote the code. The predictions locked in `report/predictions.md` were first drafted by Claude Code from the structure of the algorithms, then edited by me, so they are not purely my own beliefs. What I checked: I compared every number in my report parts with `analysis/anloc_numbers.md` and `analysis/anloc_asymmetry.md`, and I read quickselect and CLRS section 9.2. What I took on trust: I did not independently review Thanh Trung's code, results or report sections, and I relied on the passing test results (207 tests).
 
 **Thanh Trung Le.** [Paragraph.]
 
@@ -518,15 +527,19 @@ Also say what you took on trust without checking.
 
 <!-- WRITER: Both -->
 
-1. [Example: what the AI did, why it was wrong, how we noticed, what we did.]
-2. [Example.]
-3. [Example.]
+<!-- AI-DRAFT: An Loc to review and rewrite -->
+1. **A wrong expected-time argument in a comment.** Claude Code wrote that the expected work of quickselect is n + 3n/4 + ... = 4n, which assumes every pivot is good. A bad pivot can remove almost nothing. The independent review pointed it out and I redid the recurrence by hand: a pivot lands in the middle half with probability 1/2, so T(n) <= 2n + T(3n/4), and the work is at most 8n element visits, a loose bound. We rewrote the comment. (Measured mean: 5.05n.)
+2. **An experiment size that was infeasible.** The brief I wrote with Claude asked E2 to run the 2-way partition at n = 10^5 on every input family. On all-equal input it needs about 0.375 n^2 comparisons, about 3.75 * 10^9 per call. Thanh Trung's session caught it by checking the brief against my measured count (1,500,499 comparisons at n = 2000). We cut that part of E2 to n = 10^4.
+3. **A wrong explanation of the counter.** Claude said the explicit `TypeError` methods in `Counted` were needed because reflected comparisons such as `a > b` would go uncounted. That was wrong: Python would still count them through `__lt__` and `__eq__`. The overrides only enforce the rule that algorithms use `<` and `==`. Claude noticed when it rechecked Python's comparison rules, and we corrected the docstring in `bench/counting.py`.
 
 ### 8.3 AI in group work
 
 <!-- WRITER: Both (An Loc drafts, Trung edits) -->
 
-[Paragraph.]
+<!-- AI-DRAFT: An Loc to review and rewrite -->
+**Where it helped.** Written briefs and prompts let two people and two Claude Code sessions follow the same rules: one author per file, only `<` and `==` for comparisons, and no git commands run by the AI (`CLAUDE.md`). Status files let each of us see what the other had done, and checking the plan against our own measurements caught an infeasible experiment before it ran (example 2 above). The error log made mistakes visible.
+
+**Where it hurt or threatened to.** The locked predictions were first drafted by an AI, so they do not purely reflect what either of us believed. Trung's separate draft came from a session that had already seen numbers from a pilot run, and we recorded that instead of using it. AI-written plan files also carried errors between us, for example a swapped split of roles and an overstated rule about the proposal email, and we caught them only by rereading the brief. It is easy to skip reading each other's work when tests pass, and we did: I did not review Trung's code. Finally, AI drafts of report text read as finished before the numbers had been checked, and checking them changed the wording of Section 4.5.
 
 ## References
 
