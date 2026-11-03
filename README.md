@@ -94,3 +94,17 @@ python -m bench.plot
 ```
 
 This reads `results/*.csv` and writes `figures/*.png`. With `--quick` it reads `results/quick/*.csv` and writes `figures/quick/*.png`. A figure is skipped if its CSV does not exist.
+
+## Reproduce the analysis numbers
+
+These scripts read `results/` or rerun quickselect, and each rewrites its own file in `analysis/`. Run them from the repo root. Times are from one run on a Mac with Python 3.12.
+
+```
+python -m analysis.anloc_numbers
+python -m analysis.anloc_asymmetry
+python -m analysis.anloc_symmetry
+```
+
+- `analysis.anloc_numbers`: the E3 and E5 numbers in the report, from `results/e3.csv` and `results/e5.csv`, plus separate counts of `<` and `==` for the E5 quickselect runs. Fast, about 4 seconds.
+- `analysis.anloc_asymmetry`: the supplementary 300-seed run on quickselect's cost at three values of k. It does not read `results/`. Slow, about 80 seconds.
+- `analysis.anloc_symmetry`: an exact check, with fractions, that quickselect's expected cost is the same at k and at its mirror position, and a check of the cost model against the real code on small lists. About 5 seconds.
