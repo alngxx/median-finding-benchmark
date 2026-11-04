@@ -5,67 +5,17 @@ An Loc Nguyen and Thanh Trung Le.
 Repository: https://github.com/alngxx/median-finding-benchmark
 Video: [unlisted YouTube link]
 
-<!--
-HOW TO USE THIS FILE (delete this block before submitting)
-- Text inside <!- - ... - -> blocks is a writing guide. It does not show when the file is rendered. Delete every guide block before submitting.
-- [Square brackets] mark things to fill in.
-- Section 1 (median of medians part) and section 3 were drafted with Claude and edited by Trung. Say so in section 8.
-- Every number must come from a committed CSV in results/ (official run, commit 3cc528c). The numbers listed in the guide blocks were computed from those CSVs on 2 Nov.
-- Target length: 4,000 to 6,000 words in total. Word targets per section are in each guide block.
-- Use the /writing-clearly-and-concisely skill. No long dashes (CLAUDE.md).
--->
-
-<!--
-WHO WRITES WHAT (delete this block before submitting)
-
-| Part | Writer | Status |
-|---|---|---|
-| 1. The problem | An Loc | to write |
-| 1. Randomized quickselect | An Loc | to write |
-| 1. Median of medians | Trung | drafted |
-| 2. Comparison table and paragraphs | Both: An Loc the quickselect paragraph, Trung the median-of-medians paragraph | table drafted |
-| 2. Predictions | (copied from the locked file, do not edit) | done |
-| 3. Experimental methodology | Trung | drafted; add CPU model and the pilot sentence |
-| 4.1 Scaling (E1) | Trung | to write |
-| 4.2 Input families (E2) | Trung | to write |
-| 4.3 Quickselect's tail (E3) | An Loc | to write |
-| 4.4 Group size (E4) | Trung | to write |
-| 4.5 Position of k (E5) | An Loc | to write |
-| 4.6 Slow comparisons (E6) | Trung | to write |
-| 4.7 Predictions against results | Trung fills the table; An Loc fills the rows P3, P8a, P8b | to write |
-| 5.1 Surprise | Trung (a surprise about median of medians or E1, E2, E4, E6) | after the results call |
-| 5.2 Surprise | An Loc (a surprise about quickselect, for example the asymmetry in k) | after the results call |
-| 6. What we would do next | Trung | to write |
-| 7. Contributions | Each writes their own paragraph | to write |
-| 8.1 How each of us used AI | Each writes their own paragraph | to write |
-| 8.2 Three AI mistakes | Both: agree on three, each writes up the ones from their own work | to write |
-| 8.3 AI in group work | Both: An Loc drafts, Trung edits | to write |
-| References | Each adds what they cite | started |
-| Final edit, word count, remove guide blocks | Trung | last |
-
-To avoid merge conflicts: each person edits only their own parts, pulls before starting and pushes after each session.
--->
 
 ## 1. The problem and the algorithms
 
-<!--
-GUIDE (about 700 words in total; An Loc: problem + quickselect, about 350; Trung: median of medians, drafted below)
-The brief: "State the problem precisely. Describe each algorithm at a level that someone in the class who hasn't seen it could understand: the key idea, the complexity, and what makes it different from the others."
--->
 
 ### The problem (An Loc)
 
-<!-- WRITER: An Loc -->
-
-<!-- AI-DRAFT: An Loc to review and rewrite -->
 Selection takes an unsorted list of n comparable values and an index k (0-indexed) and returns the k-th smallest value. The median is k = n // 2. Sorting the list and reading element k takes O(n log n) time, but it orders far more than the question needs, and both of our algorithms aim for O(n). They share one contract, `select(a, k, rng)`, which raises `ValueError` for an empty list or k out of range and compares elements only with `<` and `==`, so one wrapper counts the comparisons of both algorithms in the same way (README.md).
 
 ### Randomized quickselect (primary author: An Loc Nguyen)
 
-<!-- WRITER: An Loc -->
-
-<!-- AI-DRAFT: An Loc to review and rewrite -->
-Quickselect (Hoare, 1961; details of the citation not verified) repeats one round until it can answer. A round picks a pivot uniformly at random with `rng.randrange`, then splits the current list into three parts using only `<` and `==`: the elements less than the pivot, equal to it, and greater than it. If k is below the size of the less part, the loop continues with the less part. If k falls inside the equal part, the pivot is the answer. Otherwise the loop continues with the greater part, and k is reduced by the sizes of the less and equal parts. The loop is iterative, because Python's recursion limit is 1,000 (CLAUDE.md).
+Quickselect (Hoare, 1961) repeats one round until it can answer. A round picks a pivot uniformly at random with `rng.randrange`, then splits the current list into three parts using only `<` and `==`: the elements less than the pivot, equal to it, and greater than it. If k is below the size of the less part, the loop continues with the less part. If k falls inside the equal part, the pivot is the answer. Otherwise the loop continues with the greater part, and k is reduced by the sizes of the less and equal parts. The loop is iterative, because Python's recursion limit is 1,000 (CLAUDE.md).
 
 **Expected time.** A pivot lands in the middle half of the elements with probability 1/2, and then the next list has at most 3/4 of the elements. Counting a bad pivot as a round that does not shrink the list, the expected work satisfies T(n) <= n + T(n)/2 + T(3n/4)/2. This gives T(n) <= 2n + T(3n/4), so T(n) <= 8n element visits. The bound is loose: the measured number of element visits (the `<` count) averages about 3.4n at k = n/2 (3.38n over 300 seeds, Section 4.5). An Loc read CLRS section 9.2 alongside this argument. The worst case is O(n^2), but it needs a long run of bad pivots, so its probability is tiny.
 
@@ -73,7 +23,6 @@ Quickselect (Hoare, 1961; details of the citation not verified) repeats one roun
 
 ### Median of medians (primary author: Thanh Trung Le)
 
-<!-- WRITER: Trung (drafted) -->
 
 Median of medians (Blum, Floyd, Pratt, Rivest and Tarjan, 1973) uses the same loop as quickselect: pick a pivot, split the list into the elements less than, equal to and greater than the pivot, and keep only the part that holds the k-th smallest value. The difference is how the pivot is chosen. Quickselect picks it at random and relies on luck. Median of medians spends work on the choice, so that the pivot is never bad.
 
@@ -98,15 +47,7 @@ Because 1/5 + 7/10 = 9/10 < 1, the work shrinks by a constant factor at each lev
 
 ## 2. Theoretical comparison and predictions (An Loc & Trung)
 
-<!-- WRITER: Both (An Loc: quickselect paragraph; Trung: median-of-medians paragraph). Predictions block: copied, do not edit -->
 
-<!--
-GUIDE (about 800 words; both)
-The brief: compare on paper (asymptotic complexity, constant factors and memory as far as you can reason, the input features each one is sensitive to), then commit to predictions written BEFORE the experiments. Do not revise them.
-- Fill in or check the table below (theory only, no results).
-- Add 2 or 3 short paragraphs on constant factors: work per round (quickselect: one partition pass; median of medians: sorting every group, building the medians list, a recursive call, then a partition pass), and what that means for comparisons per element.
-- The predictions below are copied word for word from report/predictions.md at the tag predictions-locked (commit 3ae1dd7). Do not edit them.
--->
 
 | | Randomized quickselect | Median of medians (g = 5) |
 |---|---|---|
@@ -119,10 +60,10 @@ The brief: compare on paper (asymptotic complexity, constant factors and memory 
 | Sensitive to duplicates? | 3-way partition removes every element equal to the pivot | the same |
 | Sensitive to the position of k? | Yes, in expectation | Little, the pivot is near the median for any k |
 
-<!-- AI-DRAFT: An Loc to review and rewrite -->
+
 Quickselect does one partition pass per round and no other work, so a round costs about the length of the current list (the counting rule is in Section 1). The total varies from run to run because the pivots are random, and it does not depend on the order of the input, because the pivot is random. Duplicates make it cheaper, since the 3-way partition drops every element equal to the pivot. Its cost depends on k in expectation: with a random pivot, a k near an end lets each round discard more of the list.
 
-[Paragraphs on constant factors and what each algorithm is sensitive to.]
+Median of medians does much more work per round. Before its partition pass, it sorts every group of 5 with insertion sort (up to 10 comparisons per group), builds a list of n/5 medians and calls itself on that list. So its constant factor should be larger than quickselect’s, even though both are O(n). Unlike quickselect, it makes no random choices, so it costs the same on every run. Its cost depends on input order through the insertion sorts, and reversed groups cost the most. The position of k should matter little, because the pivot is close to the true median whatever k is.
 
 ### Predictions (locked before the experiments)
 
@@ -204,13 +145,6 @@ Most uncertain prediction.
 
 ## 3. Experimental methodology (Trung)
 
-<!-- WRITER: Trung (drafted) -->
-
-<!--
-GUIDE (about 900 words; Trung, drafted below)
-The brief: "a skeptical reader could rerun your experiments from this section plus the repository and expect to see your plots reproduced."
-Still to fill: the CPU model (Task Manager > Performance > CPU).
--->
 
 All experiments run through one script, `bench/run_bench.py`, and every figure comes from `bench/plot.py` reading the committed CSV files in `results/`. The commands are:
 
@@ -247,13 +181,13 @@ All generators are in `bench/generators.py`. Each takes a size n and a seed and 
 
 E1, E2, E5 and E6 run quickselect, median of medians (group size 5) and the `sorted(a)[k]` baseline. The baseline is not one of the compared algorithms. It is Python's built-in Timsort, written in C, and it shows how pure-Python selection compares with the practical choice.
 
-Two sizes differ from our first plan. The 2-way partition part of E2 runs at n = 10^4, not 10^5: on all-equal input the 2-way partition removes one element per round, which is about 0.375 n^2 comparisons (37,502,499 measured at n = 10^4). One such call took 1.24 s at n = 10^4, so at n = 10^5 each call would take about 2 minutes and that part alone about 2.5 hours. E6 stops at n = 10^5 with 5 instances to keep the full run under half an hour. A third experiment we planned, E7 (a McIlroy-style adversary), was dropped for lack of time (section 6).
+Two sizes differ from our first plan. The 2-way partition part of E2 runs at n = 10^4, not 10^5: on all-equal input the 2-way partition removes one element per round, which is about 0.375 n^2 comparisons (37,502,499 measured at n = 10^4). One such call took 1.24 s at n = 10^4, so at n = 10^5 each call would take about 2 minutes and that part alone about 2.5 hours. E6 stops at n = 10^5 with 5 instances to keep the full run under half an hour. A seventh experiment we planned, E7 (a McIlroy-style adversary), was dropped for lack of time (section 6).
 
 ### Measurement
 
-- **Machine.** [CPU model], 16 logical CPUs, Windows 11, CPython 3.13.1 in a virtual environment, Power mode set to Best performance, plugged in, screen on, no other programs running.
+- **Machine.** AMD Ryzen 9 6900HS Creator Edition, 8 cores, 16 logical processors, L1 cache (512 KB), L2 cache (4 MB), L3 cache (16 MB), Windows 11 Home, CPython 3.13.1 in a virtual environment, Power mode set to Best performance, plugged in, screen on, no other programs running.
 - **Timing.** Each input is generated and copied before the timer starts, so we time the algorithm, not the generator. Each configuration gets one untimed warm-up run, then 5 timed runs with `time.perf_counter`, with Python's garbage collector switched off during each call. Every run is stored, and the figures show the median with the interquartile range, not only an average.
-- **Comparison counts.** A separate, untimed run wraps every element in a `Counted` object (`bench/counting.py`) whose `<` and `==` add to a counter, and any other comparison raises an error. Counts do not depend on the machine, so they let us check explanations that timing alone cannot. We count every real `<` and `==`. Our 3-way partition costs 1 comparison for an element less than the pivot and 2 otherwise, so our counts can be up to twice a textbook count, which charges 1 per element. For this reason we do not test the textbook figures of about 1.5n comparisons for Floyd-Rivest and about 2n for any deterministic algorithm directly. Median of medians also counts the comparisons inside its insertion sorts.
+- **Comparison counts.** A separate, untimed run wraps every element in a `Counted` object (`bench/counting.py`) whose `<` and `==` add to a counter, and any other comparison raises an error. Counts do not depend on the machine, so they let us check explanations that timing alone cannot. We count every real `<` and `==`. Our 3-way partition costs 1 comparison for an element less than the pivot and 2 otherwise, so our counts can be up to twice a textbook count, which charges 1 per element. For this reason we do not test the textbook figures of about 1.5n comparisons for Floyd-Rivest (Floyd & Rivest, 1975) and about 2n for any deterministic algorithm directly (Bent & John, 1985). Median of medians also counts the comparisons inside its insertion sorts.
 - **Random seeds.** Instance i uses generator seed i. Quickselect's timed runs use seeds 1000i to 1000i + 4, and its counting run uses seed 1000i, so every run can be repeated exactly.
 
 ### Correctness and fairness
@@ -268,83 +202,43 @@ Our first official run (commit 4f701e8) had to be discarded. The same configurat
 
 ### Predictions and the pilot run
 
-The predictions in section 2 were committed and tagged `predictions-locked` in git before the official run, and the git history shows the order. Before that, while testing the harness, we saw rough numbers from small pilot runs, and one full run was started by mistake before the tag; that output was moved out of the repository without being analysed. [One or two sentences from pilot-numbers-seen.md: which numbers Trung was told, which Claude saw.] Every number in this report comes from the official run.
+The predictions in section 2 were committed and tagged `predictions-locked` in git before the official run, and the git history shows the order. Before that, while testing the harness, we saw rough numbers from small pilot runs, and one full run was started by mistake before the tag; that output was moved out of the repository without being analysed. Also, Thanh Trung was told a few rough findings from these pilots: median of medians was about 2 to 4 times slower than quickselect, sorted() was about as fast as quickselect, median of medians used about 4n to 12n comparisons and took about 1.2 s at n = 10^6, comparisons per element grew with n for g = 3 but not for g = 5, 7 and 9, and in E6 the counts stayed the same while time rose. Claude, the AI assistant he used, saw more detailed pilot figures. The full list, with dates, is in `notes/pilot-numbers-seen.md`. Every number in this report comes from the official run.
 
 ## 4. Results and analysis
 
-<!--
-GUIDE (about 1,300 words; Trung leads E1, E2, E4, E6; An Loc writes E3 and E5)
-The brief: "The prose is the important part: what do the results show, and why? Connect what you observe back to the structure of the algorithms." Explain WHY in terms of what the algorithms do, and check explanations by measuring (count operations, or vary the one input feature the explanation depends on).
-For each subsection: one figure, two to four numbers, then why. End each subsection with which predictions held.
--->
 
 ### 4.1 Scaling (E1) (Trung)
 
-<!-- WRITER: Trung -->
 
 ![E1 time](../figures/e1_time_loglog.png)
 ![E1 comparisons](../figures/e1_comparisons_per_n.png)
 
-<!--
-NUMBERS (median time per call, ms; quickselect / median of medians / sorted()):
- n = 10^3: 0.135 / 0.597 / 0.038
- n = 10^4: 1.126 / 6.260 / 0.805
- n = 10^5: 14.217 / 65.072 / 11.567
- n = 2.15 * 10^5: 29.509 / 143.276 / 27.464
- n = 4.64 * 10^5: 119.547 / 361.708 / 83.374
- n = 10^6: 419.880 / 881.256 / 241.086
-Ratio median of medians / quickselect: 4.4 to 5.6 for n up to 2.15 * 10^5, then 3.0 and 2.1.
-Ratio quickselect / sorted(): 3.59 at 10^3, 1.07 at 2.15 * 10^5 (closest), 1.74 at 10^6. sorted() is faster at every n.
-Log-log slope of time vs n: quickselect 1.13, median of medians 1.05, sorted() 1.23.
-Time per element (ns): quickselect 135, 113, 142, 137 (n up to 2.15 * 10^5), then 258 and 420; median of medians 597 to 665, then 779 and 881; sorted() 38 rising to 241.
-Comparisons per element (median over 10 instances): quickselect 3.9 to 5.9 (min to max over instances at 10^5: 3.05 to 8.74); median of medians 9.07 rising to 10.03; sorted() 8.65 rising to 18.63 (n log2 n).
-Points to explain: why median of medians is about 5 times slower (work per round; about 2 times the comparisons plus list building); why quickselect's time per element triples above 2 * 10^5 while its comparisons barely change (candidate: memory layout and cache; see 4.2); why sorted() wins despite 2 to 3 times more comparisons (C vs Python).
-Predictions: P1, P2, P6.
--->
 
-[Text.]
+Both algorithms are linear in practice, but with very different constants. The log-log slope of time against n is 1.05 for median of medians and 1.13 for quickselect. Up to n = 2.15 * 10^5, median of medians is 4.4 to 5.6 times slower (65.1 ms against 14.2 ms at n = 10^5). Comparison counts explain part of this: median of medians uses 9.1n to 10.0n comparisons, about twice quickselect's 3.9n to 5.9n, because every round sorts all groups of 5 before it partitions. The rest is Python overhead that counts do not see: slicing the groups, building the list of medians and the recursive call.
+
+Above 2.15 * 10^5 the gap shrinks to 3.0 and then 2.1 times at 10^6. Quickselect's time per element jumps from 137 ns to 420 ns while its comparisons per element barely move, so it is not doing more work. Section 5.1 shows that memory layout explains about half of this jump.
+
+`sorted()` is faster than quickselect at every n, by 1.07 times at its closest (n = 2.15 * 10^5) and 1.74 times at 10^6, although it makes 2 to 3 times more comparisons (8.7n rising to 18.6n). Timsort runs each comparison in C, while both selection algorithms pay the Python interpreter for every one. P1 nearly held (the ratio exceeded 5 at some sizes), P2 held, and P6 held, but quickselect never beat `sorted()`.
 
 ### 4.2 Input families (E2) (Trung)
 
-<!-- WRITER: Trung -->
 
 ![E2 families](../figures/e2_families_time.png)
 ![E2 duplicates](../figures/e2_duplicates_comparisons.png)
 
-<!--
-NUMBERS at n = 10^5 (median time ms; comparisons / n), quickselect | median of medians | sorted():
- random:       12.25 ms, 4.52n | 62.77 ms, 9.91n | 10.95 ms, 15.32n
- sorted:       10.30 ms, 4.41n | 41.46 ms, 7.37n |  0.37 ms, 1.00n
- reverse:       9.79 ms, 4.06n | 73.99 ms, 11.41n |  0.42 ms, 1.00n
- all equal:     3.65 ms, 2.00n | 16.43 ms, 3.50n |  0.34 ms, 1.00n
- few distinct:  7.44 ms, 4.20n | 22.83 ms, 3.87n |  4.54 ms, 7.14n
- organ pipe:    9.82 ms, 5.32n | 57.78 ms, 9.41n |  0.60 ms, 2.00n
-Duplicates part at n = 10^4 (comparisons; 3-way | 2-way): all equal 20,000 | 37,502,499 (= 0.375 n^2); few distinct 35,600 | 508,873; random 44,655 | 28,650. Time on all equal: 0.4 ms | 1.24 s.
-Points to explain:
-- Quickselect on random is slower than on sorted (19%) and reverse (25%) at nearly the same comparison count, and organ pipe has MORE comparisons (5.32n) but is faster than random. Comparisons do not explain this. Candidate: memory layout (random_perm shuffles the Python int objects, so a pass jumps around memory; sorted and reverse keep them in memory order). Check before claiming it.
-- Median of medians: reverse costs the most comparisons (insertion sort on reversed groups), sorted the fewest of the distinct families; its time follows its comparisons closely.
-- sorted() is almost free on sorted, reverse and organ pipe (Timsort finds runs: 1n or 2n comparisons).
-- The 2-way partition is quadratic on all equal and also bad on few distinct; it is slightly cheaper than the 3-way on distinct values (1 comparison per element instead of up to 2).
-Predictions: P7.
--->
 
-[Text.]
+For quickselect, the order of the input hardly changes the work: random, sorted and reverse cost 4.52n, 4.41n and 4.06n comparisons, because a random pivot ignores the order. Their median times differ more (12.3, 10.3 and 9.8 ms), but the interquartile ranges overlap heavily (10.2 to 14.7 ms against 8.2 to 11.8 ms for random and sorted), and identical runs of quickselect varied by about 20% between experiments (section 3). Our memory-layout check found no layout effect at this size (`analysis/trung_memory_layout.md`, ratio 0.98 at n = 10^5), so we treat these time differences as noise. Duplicates make quickselect cheaper, as predicted: all equal costs exactly 2n (one round) and few distinct 4.20n.
+
+Median of medians depends on order through its insertion sorts. Reverse input is the most expensive (11.41n comparisons, 74.0 ms) because every group arrives reversed, and sorted input the cheapest of the distinct families (7.37n, 41.5 ms). Here time follows comparisons closely.
+
+The duplicates part confirms why we need a 3-way partition. On all equal input at n = 10^4 the 2-way partition makes 37,502,499 comparisons, 0.375 n^2, and takes 1.24 s, against 20,000 comparisons and 0.4 ms for the 3-way partition. On distinct values the 2-way version is slightly cheaper, because it pays 1 comparison per element instead of up to 2. P7 held for comparisons; its claim that random, sorted and reverse stay within 10% in time is not supported, since the medians differ by up to 25%, though within the noise of quickselect's timings.
 
 ### 4.3 Quickselect's tail (E3) (An Loc)
 
-<!-- WRITER: An Loc -->
 
 ![E3 tail](../figures/e3_quickselect_tail.png)
 
-<!--
-NUMBERS (An Loc), 1000 seeds, one instance, n = 10^5, k = n/2:
- mean 5.05n, median 4.87n, min 2.08n, 99th percentile 8.99n, max 9.86n, standard deviation 1.49n. max / mean = 1.95, p99 / mean = 1.78.
- Median of medians on the same instance: 9.69n. Quickselect used more comparisons than median of medians in 2 of 1000 seeds.
- sorted(): 15.32n.
-Predictions: P3.
--->
 
-<!-- AI-DRAFT: An Loc to review and rewrite -->
 The figure `figures/e3_quickselect_tail.png` shows the comparison counts of 1000 runs of quickselect on one instance (n = 10^5, k = n/2), one run per rng seed. All numbers in this subsection come from analysis/anloc_numbers.md, which reads results/e3.csv.
 
 The mean is 505,000 comparisons (5.05 per element) and the median is 487,000 (4.87 per element), so the distribution is skewed to the right. The standard deviation is 1.49 per element. The 99th percentile is 8.99 per element, and the maximum is 986,000 comparisons (9.86 per element), which is 1.95 times the mean. The minimum is 2.08 per element. Every run uses the same instance, so all of this spread comes from the random pivots. A likely reason for the long right tail is that a bad early pivot keeps most of the list for another full pass, while a good one removes about half; we did not test this explanation.
@@ -355,40 +249,19 @@ Prediction P3 (maximum between 1.5 and 3 times the mean) held: the measured rati
 
 ### 4.4 Group size (E4) (Trung)
 
-<!-- WRITER: Trung -->
 
 ![E4 group size](../figures/e4_group_size.png)
 
-<!--
-NUMBERS: comparisons / n at n = 10^3, 10^4, 10^5, 10^6:
- g = 3: 10.05, 11.83, 12.74, 13.32 (+33%)
- g = 5:  9.07,  9.63,  9.91, 10.03 (+11%)
- g = 7:  9.31,  9.86, 10.04, 10.11
- g = 9:  9.95, 10.49, 10.66, 10.73
-Time per element (ns) at the same n: g = 3: 773, 886, 958, 1368; g = 5: 597, 607, 629, 885; g = 7: 574, 575, 584, 814; g = 9: 585, 595, 597, 810.
-g = 7 / g = 5 time: 0.92 to 0.96 at every n (g = 7 is 4 to 8% faster).
-Points to explain: g = 3 grows (fractions 1/3 + 2/3 = 1, so O(n log n)); g = 5, 7, 9 nearly flat; why g = 7 is slightly faster than g = 5 even though its comparisons are slightly higher (fewer, larger groups: fewer list slices and Python calls per element). All four rise in time per element at 10^6 (same memory effect as E1).
-Predictions: P4, P5.
--->
 
-[Text.]
+Groups of 3 lose linearity, and it is visible within our range. From n = 10^3 to 10^6, comparisons per element rise from 10.05 to 13.32 (+33%) for g = 3, against 9.07 to 10.03 (+11%) for g = 5. This matches the recurrences: with g = 3 the pivot step and the next round cover 1/3 + 2/3 = 1 of the list, so every level of the recursion costs about the same and the total grows like n log n; with g = 5 the fractions sum to 9/10, so the levels shrink and the total stays linear. Because comparison counts do not depend on the machine, this check is independent of timing noise. Time per element shows the same pattern (773 to 1,368 ns for g = 3).
+
+Larger groups do not cost more. g = 7 and g = 9 use slightly more comparisons than g = 5 (10.11n and 10.73n at 10^6), because insertion sort on larger groups costs more, yet g = 7 is 4 to 8% faster than g = 5 at every n. A likely reason is that fewer, larger groups mean fewer list slices and Python calls per element; we did not measure this. P4 failed ("slightly, hard to see"), and P5 held.
 
 ### 4.5 Position of k (E5) (An Loc)
 
-<!-- WRITER: An Loc -->
 
 ![E5 k position](../figures/e5_k_position.png)
 
-<!--
-NUMBERS (An Loc), n = 10^5 (median time ms; comparisons / n):
- quickselect: k = 0: 6.58 ms, 2.59n; n/10: 8.49 ms, 3.14n; n/2: 11.82 ms, 4.52n; 9n/10: 9.77 ms, 4.35n
- median of medians: 63.0 to 63.6 ms, 9.90n to 9.92n for every k
- sorted(): about 11.1 ms, 15.32n for every k
-Point to explain: quickselect is not symmetric (n/10 is much cheaper than 9n/10). Candidate: our 3-way partition costs 1 comparison for an element below the pivot and 2 for one not below, so a search near the top pays more. Check by counting < and == separately.
-Predictions: P8a, P8b.
--->
-
-<!-- AI-DRAFT: An Loc to review and rewrite -->
 The table gives the median over 10 instances at n = 10^5, with the minimum and maximum over instances. Time is the median of all 50 timed runs per k (10 instances, 5 runs each), the statistic that `bench/plot.py` uses for its time figures (analysis/anloc_numbers.md, from results/e5.csv).
 
 | k | comparisons per element (median over 10 instances) | min to max over instances | time (ms, pooled median of all 50 timed runs) | time min to max (ms, over the 50 runs) |
@@ -408,69 +281,47 @@ Predictions P8a and P8b are assessed in section 4.7.
 
 ### 4.6 Slow comparisons (E6) (Trung)
 
-<!-- WRITER: Trung -->
-
 ![E6 shared prefix](../figures/e6_shared_prefix.png)
 
-<!--
-NUMBERS at n = 10^5 (median time ms for prefix 0 / 20 / 100):
- quickselect: 13.92 / 13.99 / 17.22 (+24%)
- median of medians: 68.71 / 70.50 / 75.06 (+9%)
- sorted(): 14.31 / 17.00 / 25.18 (+76%)
-Comparisons / n are identical for every prefix length: quickselect 6.70, median of medians 9.88, sorted() 15.32 (P9a held exactly, for every instance).
-Ratio median of medians / quickselect: 4.94, 5.04, 4.36 (changes by 12%).
-Extra time per comparison from prefix 0 to 100: quickselect 4.9 ns, median of medians 6.4 ns, sorted() 7.1 ns. This checks the explanation: the prefix adds about the same few nanoseconds to every comparison (a C scan of 100 shared characters); sorted() slows the most in relative terms because its own cost per comparison is the smallest and it does the most comparisons.
-Predictions: P9a, P9b, P9c.
--->
 
-[Text.]
+A shared prefix makes every comparison slower without changing which string is smaller. The comparison counts are identical for every prefix length and every instance (quickselect 6.70n, median of medians 9.88n, `sorted()` 15.32n at n = 10^5), so P9a held exactly. From prefix length 0 to 100, time rises by 24% for quickselect, 9% for median of medians and 76% for `sorted()`.
 
-### 4.7 Predictions against results (Trung) (An Loc fills rows P3, P8a, P8b)
+To check that the extra time comes from the comparisons themselves, we divided the extra time by the number of comparisons. It is about the same for all three: 4.9 ns per comparison for quickselect, 6.4 ns for median of medians and 7.1 ns for `sorted()`, the cost of scanning 100 shared characters in C. The same extra cost is a small share of median of medians' time, which is dominated by Python overhead, and a large share of `sorted()`'s time, whose own cost per comparison is the smallest. The ratio of median of medians to quickselect moves from 4.94 to 4.36 (12%), so P9b held, and both algorithms stay within 30% (P9c held). `sorted()`, which P9c did not cover, slows down most.
 
-<!-- WRITER: Trung (An Loc fills rows P3, P8a, P8b) -->
+### 4.7 Predictions against results (Trung; rows P3, P8a and P8b by An Loc)
 
-<!-- Fill in from the numbers above: held, partly held, or failed, with the number. -->
-
-<!-- AI-DRAFT: An Loc to review and rewrite (rows P3, P8a, P8b) -->
 
 | Prediction | Result | Held? |
 |---|---|---|
-| P1 | | |
-| P2 | | |
+| P1 | Median of medians / quickselect time: 4.4 to 5.6 for n up to 2.15 * 10^5, 3.0 at 4.64 * 10^5, 2.1 at 10^6 | Mostly held (above 5 at four sizes) |
+| P2 | Log-log slope 1.13 for quickselect, 1.05 for median of medians | Held |
 | P3 | Maximum / mean = 1.95 over 1000 seeds, predicted 1.5 to 3 (analysis/anloc_numbers.md) | Held |
-| P4 | | |
-| P5 | | |
-| P6 | | |
-| P7 | | |
+| P4 | g = 3 comparisons per element +33% (10.05 to 13.32) from 10^3 to 10^6, against +11% for g = 5; clearly visible | Failed | 
+| P5 | g = 7 / g = 5 time 0.92 to 0.96 at every n | Held |
+| P6 | sorted() faster than quickselect at every n: 3.59 times at 10^3, 1.07 at 2.15 * 10^5, 1.74 at 10^6; quickselect never wins | Held (the "might beat it" part did not happen) | 
+| P7 | Quickselect: all equal 2.00n, few distinct 4.20n are cheapest; random / sorted / reverse 4.52n / 4.41n / 4.06n, time 12.3 / 10.3 / 9.8 ms with overlapping ranges. Median of medians: reverse most expensive (11.41n, 74.0 ms) | Held for comparisons, not supported for time |
 | P8a | E5 medians (analysis/anloc_numbers.md): 2.59 comparisons per element at k = 0 and 4.52 at n/2, so k = 0 is clearly cheaper. At k = 9n/10 it is 4.35, only 4% below n/2, and the ranges overlap (2.06 to 5.81 against 3.05 to 8.74). Time: 6.58, 11.8 and 9.77 ms. The 300-seed supplementary means (analysis/anloc_asymmetry.md, comparisons only, k = 0 not rerun) are 4.17 (standard error 0.094) at 9n/10 against 5.07 (0.096) at n/2, so that end is clearly cheaper too | Held |
 | P8b | Largest relative difference across k = 0, n/10, n/2, 9n/10: 0.146% in comparisons, 0.950% in time, predicted within 10% (analysis/anloc_numbers.md) | Held |
-| P9a | | |
-| P9b | | |
-| P9c | | |
+| P9a | Counts identical across prefix lengths for every instance | Held |
+| P9b | Median of medians / quickselect time 4.94, 5.04, 4.36 (12% change) | Held |
+| P9c | Prefix 100 against 0: quickselect +24%, median of medians +9% | Held |
 
 ## 5. What surprised us
 
-<!--
-GUIDE (about 500 words; both, each on results about their own algorithm). Heavily weighted (10%).
-The lecturer's PA1 feedback: for each surprise give (1) what we predicted in section 2, (2) what we measured (the plot or the number), (3) an explanation we have CHECKED. Specific beats general.
-Candidates (pick on the results call):
-- Memory layout: quickselect's time does not follow its comparisons (random vs sorted in E2; time per element triples above 2 * 10^5 in E1). Check: same comparisons, different memory layout.
-- Quickselect asymmetric in k (E5): n/10 3.14n vs 9n/10 4.35n. Check: count < and == separately.
-- g = 3 grows clearly (+33% in comparisons, +77% in time per element), against our locked P4 ("slightly, hard to see").
-- sorted() in C beats quickselect at every n despite 2 to 3 times more comparisons.
--->
 
-### 5.1 [Surprise title] (Trung)
+### 5.1 Quickselect slows down per element once the data outgrows the cache (Trung)
 
-<!-- WRITER: Trung -->
 
-[Predicted: ... Measured: ... Explanation and how we checked it: ...]
+**Predicted:** P2 said both algorithms would be linear, with a log-log slope between 0.9 and 1.2, and P1 said median of medians would be 2 to 5 times slower than quickselect. Both still hold over the whole range (quickselect's slope is 1.13), but they hide what happens at large n.
+
+**Measured:** Quickselect's time per element is flat up to n = 2.15 * 10^5 (113 to 142 ns), then rises to 258 ns at 4.64 * 10^5 and 420 ns at 10^6 (E1). Its comparisons per element barely change (5.2n to 5.9n), so it is not doing more work. As a result, median of medians goes from about 5 times slower to only 2.1 times slower at 10^6.
+
+**Explanation and check:** `random_perm` creates the Python int objects in value order and then shuffles the list, so reading the list in order jumps around memory. At about 40 bytes per element (an int object plus a pointer), the data is about 8.6 MB at 2.15 * 10^5 and 18.6 MB at 4.64 * 10^5, so it crosses our processor's 16 MB L3 cache exactly between the two sizes where the jump happens. To test this without changing the comparison count, `analysis/trung_memory_layout.py` runs each algorithm on two lists with the same values and the same random seeds, so the comparisons are identical, but in one list the int objects are created in list order. At n = 10^5 the two layouts take the same time (ratio 0.98). At 4.64 * 10^5 and 10^6 the shuffled layout makes quickselect 1.92 and 2.09 times slower, against 1.17 and 1.22 for median of medians and 1.30 and 1.25 for `sorted()`. Quickselect suffers most because it does the least Python work per element, so waiting for memory is a larger share of its time.
+
+**What this does not explain:** With the objects in list order, quickselect's time per element still doubles, from 132 to 267 ns between 10^5 and 10^6. Memory layout explains about half of the jump. The rest may come from the list of pointers itself outgrowing the cache, or from building the less, equal and greater lists, but we did not measure this, and we did not count cache misses directly.
 
 ### 5.2 An asymmetry in k that did not survive a larger sample (An Loc)
 
-<!-- WRITER: An Loc -->
-
-<!-- AI-DRAFT: An Loc to review and rewrite -->
 **Predicted.** P8a said quickselect is cheaper at k = 0 and k = 9n/10 than at k = n/2, because a k near an end lets each round throw away more of the list. That reason treats both ends alike, so we expected k = n/10 and k = 9n/10 to cost about the same.
 
 **Measured.** In E5 (10 instances, n = 10^5) the median cost was 3.14 comparisons per element at k = n/10 and 4.35 at k = 9n/10, a gap of 1.21. The two ranges overlap heavily (2.43 to 6.46 and 2.06 to 5.81). Over the same 10 instances the means were 3.65 and 4.25, a gap of 0.60 (analysis/anloc_numbers.md).
@@ -481,77 +332,53 @@ Candidates (pick on the results call):
 
 ## 6. What we would do next (Trung)
 
-<!-- WRITER: Trung -->
 
-<!--
-GUIDE (about 150 words; Trung). The natural extension, and questions the work opened that we could not answer.
-Candidates: E7, the McIlroy-style adversary (dropped); Floyd-Rivest and QuickselectAdaptive (Alexandrescu, 2016), which the lecturer suggested; an in-place partition to test the memory-layout explanation; the same runs on another machine and Python version; counting comparisons the textbook way to compare with the 1.5n and 2n figures.
--->
-
-[Text.]
+Four questions stayed open. First, the McIlroy-style adversary (E7) that we dropped: an adaptive comparison function defeats deterministic pivot rules (McIlroy, 1999), but it is not clear what it can do against a random pivot, and what it costs median of medians. Second, faster selection algorithms that the lecturer suggested, Floyd-Rivest (Floyd & Rivest, 1975) and QuickselectAdaptive (Alexandrescu, 2016), which aim at fewer comparisons than both of ours. Third, the half of quickselect's slowdown at large n that memory layout does not explain (section 5.1): an in-place, index-based partition that builds no new lists would test whether list building is the rest. Fourth, our counts charge up to 2 comparisons per element, so counting the textbook way would let us compare with published figures. We would also use more instances for quickselect, since E5 showed that 10 instances can produce a gap that is pure noise (section 5.2).
 
 ## 7. Individual contributions
 
-<!-- WRITER: each person writes their own paragraph -->
 
-<!--
-GUIDE (about 200 words; each writes their own paragraph). Beyond your primary algorithm. Be honest; an uneven split is fine but must be visible. Mention that the git name "Taki" is Thanh Trung Le.
--->
-
-<!-- AI-DRAFT: An Loc to review and rewrite -->
 **An Loc Nguyen.** I specified and reviewed quickselect (`select`) and its 2-way variant (`select_two_way`) with tests, the input generators (`bench/generators.py`) and the comparison-counting wrapper (`bench/counting.py`); Claude Code wrote the code. I set up the repository: layout, `CLAUDE.md` with the shared coding rules, and the README. I specified the analysis scripts for E3 and E5, the supplementary 300-seed check and the symmetry check, which Claude Code wrote, and I wrote or edited Sections 1 (the problem and quickselect), 2 (the quickselect paragraph), 4.3, 4.5, 5.2, my rows in 4.7, and my separate individual reflection. I reviewed and edited the predictions that were locked. I also kept the AI error log and a shared task list (not committed). Thanh Trung wrote median of medians, the runner and the plots, ran every experiment (including the re-run after the CPU slowdown), wrote Section 3 and most of Section 4 and 5.1, and stitched the video, so he did more of the experimental and report work than I did. I did not independently review `median_of_medians.py` or `run_bench.py`. I spent about 10 to 15 hours in total (an estimate). Commits under the name "Taki" are Thanh Trung Le's.
 
-**Thanh Trung Le.** [Paragraph.]
+**Thanh Trung Le.** I am the primary author of median of medians and its tests; Claude generated the first version of both, and I reviewed them, ran them and, with mutation testing, found and closed two gaps in the tests. I also own the benchmark runner (`bench/run_bench.py`), the plots (`bench/plot.py`) and their smoke tests, again first generated with Claude and then adapted to our repository. I ran every experiment, noticed that the first official run was spoiled by a CPU slowdown, re-ran it, and wrote the memory-layout check (`analysis/trung_memory_layout.py`). In the report I wrote, with Claude drafting and me editing, Section 1 (median of medians), Section 3, Sections 4.1, 4.2, 4.4 and 4.6 with my rows of 4.7, Section 5.1 and Section 6, and I did the final edit. For the video I recorded the overview, my deep dive and the results, and stitched the segments. I read An Loc’s `quickselect.py` and found no problems, but I did not test it independently. I spent about 20 hours in total. My git commits under the name "Taki" are mine.
 
 ## 8. AI use
 
-<!--
-GUIDE (about 500 words). The brief requires all three:
-1. Each member's own paragraph on how they personally used AI tools.
-2. At least 3 specific examples across the group of AI being wrong, unhelpful or misleading, each with how it was noticed and what we did. Keep them in notes/ai-error-log.md too.
-   Candidates: (a) the first median-of-medians tests missed two complexity bugs, caught by mutation testing (the test run went from about 4 s to 51 s on the pivot bug); (b) the planned E2 size was infeasible, 0.375 n^2 comparisons, caught by estimating from our own counts; (c) Claude said the Dijkstra priority-queue topic was not on the topic list, caught by reading the list.
-3. A reflection on AI in group work: where it helped the group function (for example status reports between us, explaining each other's code), and where it hurt or threatened to (for example predictions drafted by an AI that had seen pilot numbers).
-Also say what you took on trust without checking.
--->
-
 ### 8.1 How each of us used AI
 
-<!-- WRITER: each person writes their own paragraph -->
 
-<!-- AI-DRAFT: An Loc to review and rewrite -->
 **An Loc Nguyen.** I used Claude (claude.ai chat) to plan the work, write prompts for Claude Code, draft emails to the lecturer, check numbers in the report drafts against the analysis files, and draft Sections 5.2, 7, 8 and my reflection from our committed files, which I then read and edited. I used Claude Code (Sonnet 5.5, medium effort) to write the generators, the counter, quickselect, the tests, the README, `CLAUDE.md`, the analysis scripts and the first draft of my parts of Sections 1, 2 and 4; each paragraph carried an AI-DRAFT mark until I had edited it. The independent review of quickselect was run in a separate session from the one that wrote the code. The predictions locked in `report/predictions.md` were first drafted by Claude Code from the structure of the algorithms, then edited by me, so they are not purely my own beliefs. What I checked: I compared every number in my report parts with `analysis/anloc_numbers.md` and `analysis/anloc_asymmetry.md`, and I read quickselect and CLRS section 9.2. What I took on trust: I did not independently review Thanh Trung's code, results or report sections, and I relied on the passing test results (207 tests).
 
-**Thanh Trung Le.** [Paragraph.]
+
+**Thanh Trung Le.** I used Claude (claude.ai, in one long session with a cloud workspace) for most of my part. It generated median of medians and its tests, the runner, the plots, the smoke tests and the memory-layout script; it computed the numbers in my report sections from the committed CSVs; and it drafted Section 1 (median of medians), Section 3, my parts of Sections 4, 5.1, 6, 7 and 8, my status reports to An Loc, and my unused predictions draft. I also used it to explain median of medians and the recurrence until I could explain them myself. What I checked: I ran pytest (207 passing) and every experiment on my own machine, re-ran everything after I found the CPU slowdown in my first run, ran the memory-layout check myself, and checked the numbers in my sections against the CSVs. What I took on trust: that the generated tests cover the important cases beyond the two gaps mutation testing found, and the statistics Claude computed that I did not recompute.
 
 ### 8.2 Where AI was wrong, unhelpful or misleading
 
-<!-- WRITER: Both -->
-
-<!-- AI-DRAFT: An Loc to review and rewrite -->
-1. **A wrong expected-time argument in a comment.** Claude Code wrote that the expected work of quickselect is n + 3n/4 + ... = 4n, which assumes every pivot is good. A bad pivot can remove almost nothing. The independent review pointed it out and I redid the recurrence by hand: a pivot lands in the middle half with probability 1/2, so T(n) <= 2n + T(3n/4), and the work is at most 8n element visits, a loose bound. We rewrote the comment. (Measured: the number of element visits, the `<` count, averages about 3.4n at k = n/2, so the bound is loose.)
-2. **An experiment size that was infeasible.** The brief I wrote with Claude asked E2 to run the 2-way partition at n = 10^5 on every input family. On all-equal input it needs about 0.375 n^2 comparisons, about 3.75 * 10^9 per call. Thanh Trung's session caught it by checking the brief against my measured count (1,500,499 comparisons at n = 2000). We cut that part of E2 to n = 10^4.
-3. **A wrong explanation of the counter.** Claude said the explicit `TypeError` methods in `Counted` were needed because reflected comparisons such as `a > b` would go uncounted. That was wrong: Python would still count them through `__lt__` and `__eq__`. The overrides only enforce the rule that algorithms use `<` and `==`. Claude noticed when it rechecked Python's comparison rules, and we corrected the docstring in `bench/counting.py`. The wrong docstring was committed in e0edf6c on 24 October and stayed in the repo until it was corrected in 07f63d4 on 3 November.
-4. **A wrong explanation of an asymmetry.** When E5 showed quickselect costing 4.35 comparisons per element at k = 9n/10 against 3.14 at k = n/10, a draft guide note suggested, and Claude supported, the idea that our counting rule (1 comparison for an element less than the pivot, 2 otherwise) might make a search near the top pay more. That cannot happen in expectation: the expected cost of a round is the same for a position and its mirror. An independent review session derived this, and we checked it exactly with `analysis/anloc_symmetry.py` and with 300 extra seeds. We removed the explanation from Sections 4.5 and 5.2.
+1. **A wrong expected-time argument in a comment.(An Loc)** Claude Code wrote that the expected work of quickselect is n + 3n/4 + ... = 4n, which assumes every pivot is good. A bad pivot can remove almost nothing. The independent review pointed it out and I redid the recurrence by hand: a pivot lands in the middle half with probability 1/2, so T(n) <= 2n + T(3n/4), and the work is at most 8n element visits, a loose bound. We rewrote the comment. (Measured: the number of element visits, the `<` count, averages about 3.4n at k = n/2, so the bound is loose.)
+2. **An experiment size that was infeasible.(An Loc)** The brief I wrote with Claude asked E2 to run the 2-way partition at n = 10^5 on every input family. On all-equal input it needs about 0.375 n^2 comparisons, about 3.75 * 10^9 per call. Thanh Trung's session caught it by checking the brief against my measured count (1,500,499 comparisons at n = 2000). We cut that part of E2 to n = 10^4.
+3. **A wrong explanation of the counter.(An Loc)** Claude said the explicit `TypeError` methods in `Counted` were needed because reflected comparisons such as `a > b` would go uncounted. That was wrong: Python would still count them through `__lt__` and `__eq__`. The overrides only enforce the rule that algorithms use `<` and `==`. Claude noticed when it rechecked Python's comparison rules, and we corrected the docstring in `bench/counting.py`. The wrong docstring was committed in e0edf6c on 24 October and stayed in the repo until it was corrected in 07f63d4 on 3 November.
+4. **A wrong explanation of an asymmetry.(Both)** When E5 showed quickselect costing 4.35 comparisons per element at k = 9n/10 against 3.14 at k = n/10, a draft guide note suggested, and Claude supported, the idea that our counting rule (1 comparison for an element less than the pivot, 2 otherwise) might make a search near the top pay more. That cannot happen in expectation: the expected cost of a round is the same for a position and its mirror. An independent review session derived this, and we checked it exactly with `analysis/anloc_symmetry.py` and with 300 extra seeds. We removed the explanation from Sections 4.5 and 5.2.
+5. **Tests that missed two complexity bugs (Trung).** The first median-of-medians tests, generated by Claude, checked answers but not cost. Mutation testing showed that two bugs passed them: using the first group median as the pivot, which loses the O(n) guarantee, and dropping the group size from the recursive call, which would have made E4 wrong. With the first bug the test run took 51 s instead of about 4 s, yet every test passed. We added a test that comparisons stay below 30n on every input family and a test that the group size reaches the recursive call.
+6. **A memory-layout claim that was noise (Trung).** Claude's first draft of Section 4.2 explained why quickselect was 19% slower on random than on sorted input, at almost the same comparison count, by memory layout. Trung's layout check (`analysis/trung_memory_layout.py`) found no layout effect at n = 10^5 (ratio 0.98), and the interquartile ranges overlap. We rewrote 4.2 to treat the difference as noise.
 
 ### 8.3 AI in group work
 
-<!-- WRITER: Both (An Loc drafts, Trung edits) -->
+**Where it helped.** Written briefs let two people and two Claude Code sessions follow the same rules: one author per file, only `<` and `==` for comparisons, and no git command that changes the repository (`CLAUDE.md`; An Loc allowed one fetch and fast-forward pull in a single prompt). Status files told each of us what the other had done, and Claude helped Trung read An Loc's status notes and plans. Checking a plan against our own measurements caught an infeasible experiment before it ran (example 2 above), and the error log kept mistakes visible.
 
-<!-- AI-DRAFT: An Loc to review and rewrite -->
-**Where it helped.** Written briefs and prompts let two people and two Claude Code sessions follow the same rules: one author per file, only `<` and `==` for comparisons, and no git command that changes the repository, except a fetch and a fast-forward pull that I allowed in one prompt (the standing rule is in `CLAUDE.md`; the exception was given in one prompt and is not in the repo). Status files let each of us see what the other had done, and checking the plan against our own measurements caught an infeasible experiment before it ran (example 2 above). The error log made mistakes visible.
+**Where it hurt or threatened to.** The locked predictions were first drafted by an AI, so they do not purely reflect what either of us believed. Trung's own draft came from a session that had seen pilot numbers, so we recorded it but did not use it. AI-written text also carried errors between us: a swapped split of roles and an overstated rule about the proposal email in plan files, and the line "Changes An Loc made: none", which Claude wrote into the locked predictions file in Trung's session and which was not accurate (Section 2). We caught these only by rereading the brief and the files. AI drafts of report text also read as finished before the numbers were checked: a first E5 table used a different time statistic from the figures (6.80 against 6.58 ms at k = 0). Finally, passing tests made it easy to skip reading each other's work: An Loc did not review Trung's code.
 
-**Where it hurt or threatened to.** The locked predictions were first drafted by an AI, so they do not purely reflect what either of us believed. Trung's separate draft came from a session that had already seen numbers from a pilot run, and we recorded that instead of using it. AI-written plan files also carried errors between us, for example a swapped split of roles and an overstated rule about the proposal email, and we caught them only by rereading the brief. It is easy to skip reading each other's work when tests pass, and we did: I did not review Trung's code. Finally, AI drafts of report text read as finished before the numbers had been checked. The E5 time statistic in a first table differed from the one used in the figures (6.80 against 6.58 ms at k = 0), and one sentence about what An Loc had seen before the lock was false as first written; both were found by reading the draft against the data and the locked file. The session that drafted the locked predictions also ran experiments E1 to E6 in --quick mode before drafting (self-reported, see Section 2).
-
-## References
-
-<!-- WRITER: each adds what they cite -->
-
-<!-- Check every entry. Remove the ones you do not cite. -->
+## References 
 
 Alexandrescu, A. (2016). *Fast deterministic selection*. arXiv:1606.00484.
+
+Bent, S. W., & John, J. W. (1985). Finding the median requires 2n comparisons. In *Proceedings of the 17th Annual ACM Symposium on Theory of Computing* (pp. 213-216). ACM. https://doi.org/10.1145/22145.22169
 
 Blum, M., Floyd, R. W., Pratt, V., Rivest, R. L., & Tarjan, R. E. (1973). Time bounds for selection. *Journal of Computer and System Sciences, 7*(4), 448-461.
 
 Cormen, T. H., Leiserson, C. E., Rivest, R. L., & Stein, C. (2009). *Introduction to algorithms* (3rd ed.). MIT Press.
 
+Floyd, R. W., & Rivest, R. L. (1975). Expected time bounds for selection. *Communications of the ACM, 18*(3), 165-172.
+
 Hoare, C. A. R. (1961). Algorithm 65: Find. *Communications of the ACM, 4*(7), 321-322.
+
+McIlroy, M. D. (1999). A killer adversary for quicksort. *Software: Practice and Experience, 29*(4), 341-344.
