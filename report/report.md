@@ -3,7 +3,7 @@
 UTS 41052 Advanced Algorithms, Programming Assignment 2, Theme 2 (deterministic vs randomized).
 An Loc Nguyen and Thanh Trung Le.
 Repository: https://github.com/alngxx/median-finding-benchmark
-Video: [unlisted YouTube link]
+Video: https://youtu.be/vJGVU6C06bs
 
 ## 1. The problem and the algorithms
 

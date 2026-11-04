@@ -29,11 +29,16 @@ tests/                          ← test_contract.py (all three select functions
                                   test_quickselect.py, test_median_of_medians.py,
                                   test_generators_counting.py (generators and Counted),
                                   test_bench_smoke.py (run_bench and plot)
-analysis/                       ← per-person scripts that print numbers from results/
+analysis/                       ← per-person scripts (anloc_numbers, anloc_asymmetry, anloc_symmetry,
+                                  trung_memory_layout) that write their numbers to analysis/*.md
+report/report.md                ← the written report (4,000 to 6,000 words)
 report/predictions.md           ← locked with a git tag before any experiment
+reflections/                    ← one individual reflection per member (about 500 words)
+slides.html                     ← slides for the video (videos/ is git-ignored)
 results/  figures/              ← generated files, committed
 notes/anloc.md, notes/trung.md  ← one entry per working session
 notes/ai-error-log.md           ← every AI mistake, same day
+notes/pilot-numbers-seen.md     ← numbers seen before the predictions were locked
 ```
 
 ## Rules
