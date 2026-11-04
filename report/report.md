@@ -315,9 +315,21 @@ Four questions stayed open. First, the dropped adversary experiment (E7): an ada
 
 ### 8.1 How each of us used AI
 
-**An Loc Nguyen.** I used Claude (claude.ai chat) to plan the work, write prompts for Claude Code, draft emails to the lecturer, check report numbers against the analysis files, and draft Sections 5.2, 7, 8 and my reflection from our committed files, which I read and edited. I used Claude Code (Sonnet 5.5, medium effort) to write the generators, the counter, quickselect, the tests, the README, `CLAUDE.md`, the analysis scripts and the first draft of my parts of Sections 1, 2 and 4. I also used Claude Code (Opus 5.5) to review quickselect, build the slides and rewrite my sections in plainer language, which I read and edited, and Claude drafted my video scripts, which I edited. The review ran in a separate session from the coding session. Thanh Trung removed the AI-DRAFT marks in the final edit, and I read and checked my paragraphs on 4 November. What I checked: I compared every number in my report parts with `analysis/anloc_numbers.md` and `analysis/anloc_asymmetry.md`, and I read quickselect and Cormen et al. (2009, section 9.2). What I took on trust: Thanh Trung's code, results and sections, and the 207 passing tests.
+**An Loc Nguyen.**
 
-**Thanh Trung Le.** I used Claude (claude.ai, one long session with a cloud workspace) for most of my part. It generated median of medians and its tests, the runner, the plots, the smoke tests and the memory-layout script, computed the numbers in my sections from the CSVs, and drafted my report sections, my status reports to An Loc and my unused predictions draft. I also used it to explain median of medians and the recurrence until I could explain them myself. What I checked: I ran pytest (207 passing) and every experiment on my machine, re-ran everything after the CPU slowdown, ran the memory-layout check, and checked my numbers against the CSVs. What I took on trust: that the tests cover the important cases beyond the two gaps mutation testing found, and the statistics Claude computed that I did not recompute.
+- I used Claude (claude.ai chat) to plan the work, write prompts for Claude Code, draft emails to the lecturer, check report numbers against the analysis files, and draft Sections 5.2, 7, 8 and my reflection from our committed files, which I read and edited.
+- I used Claude Code (Sonnet 5.5, medium effort) to write the generators, the counter, quickselect, the tests, the README, `CLAUDE.md`, the analysis scripts and the first draft of my parts of Sections 1, 2 and 4.
+- I also used Claude Code (Opus 5.5) to review quickselect, build the slides and rewrite my sections in plainer language, which I read and edited, and Claude drafted my video scripts, which I edited. The review ran in a separate session from the coding session.
+- Thanh Trung removed the AI-DRAFT marks in the final edit, and I read and checked my paragraphs on 4 November.
+- What I checked: I compared every number in my report parts with `analysis/anloc_numbers.md` and `analysis/anloc_asymmetry.md`, and I read quickselect and Cormen et al. (2009, section 9.2).
+- What I took on trust: Thanh Trung's code, results and sections, and the 207 passing tests.
+
+**Thanh Trung Le.**
+
+- I used Claude (claude.ai, one long session with a cloud workspace) for most of my part. It generated median of medians and its tests, the runner, the plots, the smoke tests, and the memory-layout script; computed the numbers in my sections from the CSVs; and drafted my report sections, my status reports to An Loc, and my unused predictions draft.
+- I also used it to explain median of medians and the recurrence until I could explain them myself.
+- What I checked: I ran pytest (207 passing) and every experiment on my machine, re-ran everything after the CPU slowdown, ran the memory-layout check, and checked my numbers against the CSVs.
+- What I took on trust: that the tests cover the important cases beyond the two gaps mutation testing found, and the statistics Claude computed that I did not recompute.
 
 ### 8.2 Where AI was wrong, unhelpful or misleading
 
@@ -339,7 +351,7 @@ Four questions stayed open. First, the dropped adversary experiment (E7): an ada
 
 **Where it helped.** Written briefs (`CLAUDE.md`) let two people and two Claude Code sessions follow the same rules: one author per file, only `<` and `==`, and no git command that changes the repository (An Loc allowed a few fetch and fast-forward pull commands in some prompts). Status files told each of us what the other had done. Checking a plan against our measurements caught an infeasible experiment (example 2), and the error log kept mistakes visible.
 
-**Where it hurt or threatened to.** An AI drafted the locked predictions, so they do not purely reflect what either of us believed (Section 2). AI-written text also carried errors between us: a swapped split of roles and an overstated rule about the proposal email in plan files, and the inaccurate line "Changes An Loc made: none", which Claude wrote into the locked predictions file in Trung's session. We caught these only by rereading the brief and the files. AI drafts also looked finished before anyone checked the numbers: a first E5 table used a different time statistic from the figures (6.80 against 6.58 ms at k = 0). Passing tests made it easy to skip reading each other's work: An Loc did not review Trung's code.
+**Where it hurt or threatened to.** An AI drafted the locked predictions, so they do not purely reflect what either of us believed (Section 2). AI-written text also carried errors between us: a role split swap and an overstated rule about the proposal email in the plan files, and the inaccurate line "Changes An Loc made: none", which Claude wrote into the locked predictions file in Trung's session. We caught these only by rereading the brief and the files. AI drafts also looked finished before anyone checked the numbers: a first E5 table used a different time statistic than the figures (6.80 ms vs. 6.58 ms at k = 0). Passing tests made it easy to skip reading each other's work.
 
 ## References
 
